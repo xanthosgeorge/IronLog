@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: ironlog-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ironlog
+      POSTGRES_PASSWORD: ironlog
+      POSTGRES_DB: ironlog_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - ironlog-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  ironlog-postgres-data:
