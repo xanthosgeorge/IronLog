@@ -6,4 +6,7 @@
     <Project Path="backend/IronLog.Infrastructure/IronLog.Infrastructure.csproj" />
     <Project Path="backend/IronLog.Persistence/IronLog.Persistence.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/IronLog.Tests/IronLog.Tests.csproj" />
+  </Folder>
 </Solution>
