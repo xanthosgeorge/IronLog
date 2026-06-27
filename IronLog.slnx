@@ -1,5 +1,9 @@
 <Solution>
   <Folder Name="/backend/">
     <Project Path="backend/IronLog.Api/IronLog.Api.csproj" />
+    <Project Path="backend/IronLog.Application/IronLog.Application.csproj" />
+    <Project Path="backend/IronLog.Domain/IronLog.Domain.csproj" />
+    <Project Path="backend/IronLog.Infrastructure/IronLog.Infrastructure.csproj" />
+    <Project Path="backend/IronLog.Persistence/IronLog.Persistence.csproj" />
   </Folder>
 </Solution>

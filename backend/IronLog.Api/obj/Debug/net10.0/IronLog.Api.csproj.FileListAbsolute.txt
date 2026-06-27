@@ -34,3 +34,12 @@
 /Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Api/bin/Debug/net10.0/Swashbuckle.AspNetCore.Swagger.dll
 /Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Api/bin/Debug/net10.0/Swashbuckle.AspNetCore.SwaggerGen.dll
 /Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Api/bin/Debug/net10.0/Swashbuckle.AspNetCore.SwaggerUI.dll
+/Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Api/bin/Debug/net10.0/IronLog.Application.dll
+/Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Api/bin/Debug/net10.0/IronLog.Domain.dll
+/Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Api/bin/Debug/net10.0/IronLog.Infrastructure.dll
+/Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Api/bin/Debug/net10.0/IronLog.Persistence.dll
+/Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Api/bin/Debug/net10.0/IronLog.Application.pdb
+/Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Api/bin/Debug/net10.0/IronLog.Infrastructure.pdb
+/Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Api/bin/Debug/net10.0/IronLog.Persistence.pdb
+/Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Api/bin/Debug/net10.0/IronLog.Domain.pdb
+/Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Api/obj/Debug/net10.0/IronLog.Api.sourcelink.json

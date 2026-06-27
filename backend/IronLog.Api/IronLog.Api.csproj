@@ -11,4 +11,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\IronLog.Application\IronLog.Application.csproj" />
+    <ProjectReference Include="..\IronLog.Infrastructure\IronLog.Infrastructure.csproj" />
+    <ProjectReference Include="..\IronLog.Persistence\IronLog.Persistence.csproj" />
+  </ItemGroup>
+
 </Project>

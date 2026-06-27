@@ -113,6 +113,56 @@
         "frameworkReferences": [
           "Microsoft.AspNetCore.App"
         ]
+      },
+      "IronLog.Application/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "dependencies": {
+          "IronLog.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/IronLog.Application.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/IronLog.Application.dll": {}
+        }
+      },
+      "IronLog.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "compile": {
+          "bin/placeholder/IronLog.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/IronLog.Domain.dll": {}
+        }
+      },
+      "IronLog.Infrastructure/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "dependencies": {
+          "IronLog.Application": "1.0.0",
+          "IronLog.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/IronLog.Infrastructure.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/IronLog.Infrastructure.dll": {}
+        }
+      },
+      "IronLog.Persistence/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "dependencies": {
+          "IronLog.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/IronLog.Persistence.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/IronLog.Persistence.dll": {}
+        }
       }
     }
   },
@@ -489,10 +539,33 @@
         "swashbuckle.aspnetcore.swaggerui.10.2.3.nupkg.sha512",
         "swashbuckle.aspnetcore.swaggerui.nuspec"
       ]
+    },
+    "IronLog.Application/1.0.0": {
+      "type": "project",
+      "path": "../IronLog.Application/IronLog.Application.csproj",
+      "msbuildProject": "../IronLog.Application/IronLog.Application.csproj"
+    },
+    "IronLog.Domain/1.0.0": {
+      "type": "project",
+      "path": "../IronLog.Domain/IronLog.Domain.csproj",
+      "msbuildProject": "../IronLog.Domain/IronLog.Domain.csproj"
+    },
+    "IronLog.Infrastructure/1.0.0": {
+      "type": "project",
+      "path": "../IronLog.Infrastructure/IronLog.Infrastructure.csproj",
+      "msbuildProject": "../IronLog.Infrastructure/IronLog.Infrastructure.csproj"
+    },
+    "IronLog.Persistence/1.0.0": {
+      "type": "project",
+      "path": "../IronLog.Persistence/IronLog.Persistence.csproj",
+      "msbuildProject": "../IronLog.Persistence/IronLog.Persistence.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net10.0": [
+      "IronLog.Application >= 1.0.0",
+      "IronLog.Infrastructure >= 1.0.0",
+      "IronLog.Persistence >= 1.0.0",
       "Microsoft.AspNetCore.OpenApi >= 10.0.7",
       "Swashbuckle.AspNetCore >= 10.2.3"
     ]
@@ -521,7 +594,17 @@
       "frameworks": {
         "net10.0": {
           "targetAlias": "net10.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "/Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Application/IronLog.Application.csproj": {
+              "projectPath": "/Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Application/IronLog.Application.csproj"
+            },
+            "/Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Infrastructure/IronLog.Infrastructure.csproj": {
+              "projectPath": "/Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Infrastructure/IronLog.Infrastructure.csproj"
+            },
+            "/Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Persistence/IronLog.Persistence.csproj": {
+              "projectPath": "/Users/georgexanthos/Documents/GitHub/IronLog/backend/IronLog.Persistence/IronLog.Persistence.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

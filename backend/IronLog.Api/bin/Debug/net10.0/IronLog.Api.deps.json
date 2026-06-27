@@ -8,6 +8,9 @@
     ".NETCoreApp,Version=v10.0": {
       "IronLog.Api/1.0.0": {
         "dependencies": {
+          "IronLog.Application": "1.0.0",
+          "IronLog.Infrastructure": "1.0.0",
+          "IronLog.Persistence": "1.0.0",
           "Microsoft.AspNetCore.OpenApi": "10.0.7",
           "Swashbuckle.AspNetCore": "10.2.3"
         },
@@ -70,6 +73,48 @@
             "fileVersion": "10.2.3.2721"
           }
         }
+      },
+      "IronLog.Application/1.0.0": {
+        "dependencies": {
+          "IronLog.Domain": "1.0.0"
+        },
+        "runtime": {
+          "IronLog.Application.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "IronLog.Domain/1.0.0": {
+        "runtime": {
+          "IronLog.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "IronLog.Infrastructure/1.0.0": {
+        "dependencies": {
+          "IronLog.Application": "1.0.0",
+          "IronLog.Domain": "1.0.0"
+        },
+        "runtime": {
+          "IronLog.Infrastructure.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "IronLog.Persistence/1.0.0": {
+        "dependencies": {
+          "IronLog.Domain": "1.0.0"
+        },
+        "runtime": {
+          "IronLog.Persistence.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
       }
     }
   },
@@ -120,6 +165,26 @@
       "sha512": "sha512-nthWONRs/FJ4yyG206g1cC52WEG8EqrjuMWjGdR+5XG7lbjFto6NqcI9EMICgVFom/UivIjUVwI76ZHbHwTPfQ==",
       "path": "swashbuckle.aspnetcore.swaggerui/10.2.3",
       "hashPath": "swashbuckle.aspnetcore.swaggerui.10.2.3.nupkg.sha512"
+    },
+    "IronLog.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "IronLog.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "IronLog.Infrastructure/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "IronLog.Persistence/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }
