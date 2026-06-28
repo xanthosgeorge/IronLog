@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { Exercise, ExercisePayload } from '../../../../core/models/exercise.model';
-import { MuscleGroup } from '../../../../core/models/muscle-group.model';
-import { ExerciseService } from '../../../../core/services/exercise.service';
-import { MuscleGroupService } from '../../../../core/services/muscle-group.service';
+import { Exercise, ExercisePayload } from '../../models/exercise.model';
+import { MuscleGroup } from '../../../muscle-groups/models/muscle-group.model';
+import { ExerciseService } from '../../services/exercise.service';
+import { MuscleGroupService } from '../../../muscle-groups/services/muscle-group.service';
 
 @Component({
   selector: 'app-exercises-page',
