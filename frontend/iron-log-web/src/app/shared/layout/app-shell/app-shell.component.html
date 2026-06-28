@@ -1,0 +1,62 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark">I</div>
+      <div>
+        <h1>IRON <span>LOG</span></h1>
+        <p>Performance OS</p>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <span>01</span> Dashboard
+      </a>
+      <a routerLink="/exercises" routerLinkActive="active">
+        <span>02</span> Exercises
+      </a>
+      <a routerLink="/muscle-groups" routerLinkActive="active">
+        <span>03</span> Muscle Groups
+      </a>
+      <a routerLink="/workout-sessions" routerLinkActive="active">
+        <span>04</span> Workout Sessions
+      </a>
+      <a routerLink="/progress" routerLinkActive="active">
+        <span>05</span> Progress
+      </a>
+      <a routerLink="/analytics" routerLinkActive="active">
+        <span>06</span> Analytics
+      </a>
+      <a routerLink="/settings" routerLinkActive="active">
+        <span>07</span> Settings
+      </a>
+    </nav>
+
+    <div class="athlete-card">
+      <div class="avatar">JD</div>
+      <div>
+        <strong>John Doe</strong>
+        <span>Level 12</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="workspace">
+    <header class="topbar">
+      <div>
+        <p>Command Center</p>
+        <h2>Track. Analyze. Progress.</h2>
+      </div>
+
+      <div class="topbar-actions">
+        <button type="button" class="icon-button" aria-label="Notifications">N</button>
+        <button type="button" class="icon-button" aria-label="Calendar">C</button>
+        <button type="button" class="primary-button">New Workout</button>
+      </div>
+    </header>
+
+    <section class="page-content">
+      <router-outlet></router-outlet>
+    </section>
+  </main>
+</div>

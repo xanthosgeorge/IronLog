@@ -1,0 +1,131 @@
+<section class="dashboard-page">
+  <div class="dashboard-hero">
+    <div>
+      <p>Welcome back, John</p>
+      <h1>Track your progress. Break your limits.</h1>
+    </div>
+    <button type="button" class="btn btn-primary">New Workout</button>
+  </div>
+
+  <div class="metrics-grid">
+    <article class="metric-card card" *ngFor="let metric of metrics">
+      <div class="metric-icon">{{ metric.icon }}</div>
+      <div>
+        <span>{{ metric.label }}</span>
+        <strong>{{ metric.value }}</strong>
+        <p>{{ metric.detail }}</p>
+      </div>
+    </article>
+  </div>
+
+  <div class="dashboard-grid">
+    <article class="progress-card card">
+      <div class="card-title">
+        <h2>Progress Overview</h2>
+        <select aria-label="Progress period">
+          <option>Last 8 Weeks</option>
+          <option>Last 12 Weeks</option>
+        </select>
+      </div>
+
+      <div class="tabs">
+        <button type="button" class="active">Volume</button>
+        <button type="button">Strength</button>
+        <button type="button">Reps</button>
+        <button type="button">Body Weight</button>
+      </div>
+
+      <div class="chart">
+        <div class="grid-lines"></div>
+        <svg viewBox="0 0 780 210" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="volumeFill" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#e53935" stop-opacity="0.48" />
+              <stop offset="100%" stop-color="#e53935" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <path d="M0 154 L45 139 L85 126 L128 132 L169 118 L207 128 L250 94 L291 101 L333 72 L373 98 L414 86 L455 80 L497 68 L536 51 L579 72 L619 61 L662 76 L704 43 L748 24 L780 6 L780 210 L0 210 Z" fill="url(#volumeFill)" />
+          <polyline points="0,154 45,139 85,126 128,132 169,118 207,128 250,94 291,101 333,72 373,98 414,86 455,80 497,68 536,51 579,72 619,61 662,76 704,43 748,24 780,6" fill="none" stroke="#ff2b2b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <div class="chart-labels">
+          <span>May 4</span>
+          <span>Jun 1</span>
+          <span>Jun 29</span>
+          <span>Jul 27</span>
+          <span>Aug 10</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="today-card card">
+      <div class="card-title">
+        <h2>Today's Workout</h2>
+      </div>
+      <div class="workout-heading">
+        <div class="round-icon">U</div>
+        <div>
+          <strong>Upper A</strong>
+          <span>August 12, 2024 · 1h 10m</span>
+        </div>
+      </div>
+      <div class="workout-row" *ngFor="let row of ['Bench Press|25kg|8, 8, 7', 'Incline Dumbbell Press|22.5kg|9, 8, 8', 'Pull Ups|BW|10, 8, 6', 'Cable Fly|15kg|12, 12, 10']">
+        <span>{{ row.split('|')[0] }}</span>
+        <span>{{ row.split('|')[1] }}</span>
+        <span>{{ row.split('|')[2] }}</span>
+      </div>
+      <button type="button" class="btn btn-ghost">View Workout</button>
+    </article>
+
+    <article class="performance-card card">
+      <div class="card-title">
+        <h2>Exercise Performance</h2>
+        <a>View All Exercises</a>
+      </div>
+      <div class="performance-row" *ngFor="let item of performance">
+        <div class="round-icon">{{ item.name.charAt(0) }}</div>
+        <div>
+          <strong>{{ item.name }}</strong>
+          <span>{{ item.group }}</span>
+        </div>
+        <div>
+          <span>{{ item.metric }}</span>
+          <strong>{{ item.value }}</strong>
+        </div>
+        <div class="sparkline"></div>
+        <div class="change">
+          <strong>{{ item.change }}</strong>
+          <span>vs last 30 days</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="recent-card card">
+      <div class="card-title">
+        <h2>Recent Workouts</h2>
+        <a>View All</a>
+      </div>
+      <div class="recent-row" *ngFor="let workout of recentWorkouts">
+        <div class="round-icon">{{ workout.name.charAt(0) }}</div>
+        <div>
+          <strong>{{ workout.name }}</strong>
+          <span>{{ workout.date }}</span>
+        </div>
+        <span>{{ workout.duration }}</span>
+        <span>{{ workout.volume }}</span>
+      </div>
+    </article>
+  </div>
+
+  <article class="ai-card card">
+    <div class="ai-badge">AI</div>
+    <div>
+      <h2>AI Coach Insight</h2>
+      <p>Great progress on your bench press. Your total reps are up <strong>15%</strong> over the last 4 weeks.</p>
+    </div>
+    <div>
+      <h3>Recommendation</h3>
+      <p>Try increasing your next bench press working weight to 27.5kg if warmups move smoothly.</p>
+    </div>
+    <button type="button" class="btn btn-primary">View Full Analysis</button>
+  </article>
+</section>

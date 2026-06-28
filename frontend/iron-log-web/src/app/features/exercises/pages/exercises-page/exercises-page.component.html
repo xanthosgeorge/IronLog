@@ -1,0 +1,92 @@
+<section class="page-header">
+  <div>
+    <h1>Exercises</h1>
+    <p>Build and maintain the exercise library used in workout sessions.</p>
+  </div>
+</section>
+
+<section class="management-grid">
+  <form class="card editor-card" (ngSubmit)="save()">
+    <div class="section-title">
+      <h2>{{ editingId ? 'Edit Exercise' : 'Create Exercise' }}</h2>
+      <p>{{ editingId ? 'Update movement details.' : 'Add a movement and assign it to a muscle group.' }}</p>
+    </div>
+
+    <div class="form-grid single-column">
+      <label class="form-field">
+        <span>Name</span>
+        <input name="name" [(ngModel)]="form.name" placeholder="Bench Press" required />
+      </label>
+
+      <label class="form-field">
+        <span>Muscle Group</span>
+        <select name="muscleGroupId" [(ngModel)]="form.muscleGroupId" required>
+          <option value="" disabled>Select muscle group</option>
+          <option *ngFor="let group of muscleGroups" [value]="group.id">{{ group.name }}</option>
+        </select>
+      </label>
+
+      <label class="form-field">
+        <span>Equipment Type</span>
+        <input name="equipmentType" [(ngModel)]="form.equipmentType" placeholder="Barbell, Dumbbell, Machine" />
+      </label>
+
+      <label class="toggle-row">
+        <input type="checkbox" name="isActive" [(ngModel)]="form.isActive" />
+        <span>Active exercise</span>
+      </label>
+    </div>
+
+    <p class="error-state compact" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-ghost" (click)="resetForm()" *ngIf="editingId">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="isSaving || muscleGroups.length === 0">
+        {{ isSaving ? 'Saving...' : editingId ? 'Save Changes' : 'Create Exercise' }}
+      </button>
+    </div>
+  </form>
+
+  <div class="card table-card">
+    <div class="section-title table-title">
+      <div>
+        <h2>Exercise Library</h2>
+        <p>{{ exercises.length }} movements configured</p>
+      </div>
+      <button type="button" class="btn btn-ghost" (click)="loadPageData()">Refresh</button>
+    </div>
+
+    <div class="empty-state" *ngIf="isLoading">Loading exercises...</div>
+    <div class="empty-state" *ngIf="!isLoading && exercises.length === 0">No exercises yet.</div>
+
+    <table class="data-table" *ngIf="!isLoading && exercises.length > 0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Muscle Group</th>
+          <th>Equipment</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let exercise of exercises">
+          <td><strong>{{ exercise.name }}</strong></td>
+          <td>{{ getMuscleGroupName(exercise) }}</td>
+          <td>{{ exercise.equipmentType || 'Not set' }}</td>
+          <td>
+            <span class="status-pill" [class.is-active]="exercise.isActive">
+              {{ exercise.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td>
+            <div class="table-actions">
+              <button type="button" class="btn btn-ghost" (click)="edit(exercise)">Edit</button>
+              <button type="button" class="btn btn-danger" (click)="delete(exercise)">Delete</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

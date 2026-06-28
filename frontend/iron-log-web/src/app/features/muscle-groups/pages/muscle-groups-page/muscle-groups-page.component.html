@@ -1,0 +1,71 @@
+<section class="page-header">
+  <div>
+    <h1>Muscle Groups</h1>
+    <p>Manage the primary training categories used across your exercise library.</p>
+  </div>
+</section>
+
+<section class="management-grid">
+  <form class="card editor-card" (ngSubmit)="save()">
+    <div class="section-title">
+      <h2>{{ editingId ? 'Edit Muscle Group' : 'Create Muscle Group' }}</h2>
+      <p>{{ editingId ? 'Update the selected category.' : 'Add a new category for exercise organization.' }}</p>
+    </div>
+
+    <div class="form-grid single-column">
+      <label class="form-field">
+        <span>Name</span>
+        <input name="name" [(ngModel)]="form.name" placeholder="Chest" required />
+      </label>
+
+      <label class="form-field">
+        <span>Description</span>
+        <textarea name="description" [(ngModel)]="form.description" placeholder="Primary pushing muscles and related movements"></textarea>
+      </label>
+    </div>
+
+    <p class="error-state compact" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-ghost" (click)="resetForm()" *ngIf="editingId">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+        {{ isSaving ? 'Saving...' : editingId ? 'Save Changes' : 'Create Group' }}
+      </button>
+    </div>
+  </form>
+
+  <div class="card table-card">
+    <div class="section-title table-title">
+      <div>
+        <h2>All Muscle Groups</h2>
+        <p>{{ muscleGroups.length }} categories configured</p>
+      </div>
+      <button type="button" class="btn btn-ghost" (click)="loadMuscleGroups()">Refresh</button>
+    </div>
+
+    <div class="empty-state" *ngIf="isLoading">Loading muscle groups...</div>
+    <div class="empty-state" *ngIf="!isLoading && muscleGroups.length === 0">No muscle groups yet.</div>
+
+    <table class="data-table" *ngIf="!isLoading && muscleGroups.length > 0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let group of muscleGroups">
+          <td><strong>{{ group.name }}</strong></td>
+          <td>{{ group.description || 'No description' }}</td>
+          <td>
+            <div class="table-actions">
+              <button type="button" class="btn btn-ghost" (click)="edit(group)">Edit</button>
+              <button type="button" class="btn btn-danger" (click)="delete(group)">Delete</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
