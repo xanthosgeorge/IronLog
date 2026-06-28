@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("IronLog.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5a8097a1d2818da837bcf5cf990fad5dd70069d2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3f17159da14d8865298490c2fa570783371e7313")]
 [assembly: System.Reflection.AssemblyProductAttribute("IronLog.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("IronLog.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
