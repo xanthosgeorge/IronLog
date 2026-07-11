@@ -14,6 +14,8 @@ public class WorkoutSession
 
     public int? DurationMinutes { get; set; }
 
+    public decimal TotalLoad { get; set; }
+
     public string? Notes { get; set; }
 
     public string? AiSummary { get; set; }

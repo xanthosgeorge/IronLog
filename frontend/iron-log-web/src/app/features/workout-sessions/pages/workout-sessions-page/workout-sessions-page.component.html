@@ -1,0 +1,180 @@
+<section class="page-header">
+  <div>
+    <h1>Workout Sessions</h1>
+    <p>Register complete training sessions with exercises, sets, load, reps and RPE.</p>
+  </div>
+
+  <button type="button" class="btn btn-ghost" (click)="loadPageData()">Refresh</button>
+</section>
+
+<section class="workout-layout">
+  <form class="card session-form" (ngSubmit)="save()">
+    <div class="section-title">
+      <h2>New Workout Session</h2>
+      <p>Create a session and log each exercise set in one pass.</p>
+    </div>
+
+    <div class="form-grid">
+      <label class="form-field">
+        <span>Title</span>
+        <input name="title" [(ngModel)]="form.title" placeholder="Upper A" required />
+      </label>
+
+      <label class="form-field">
+        <span>Session Date</span>
+        <input type="date" name="sessionDate" [(ngModel)]="form.sessionDate" required />
+      </label>
+
+      <label class="form-field">
+        <span>Duration Minutes</span>
+        <input type="number" name="durationMinutes" [(ngModel)]="form.durationMinutes" placeholder="70" min="0" />
+      </label>
+
+      <label class="form-field notes-field">
+        <span>Notes</span>
+        <textarea name="notes" [(ngModel)]="form.notes" placeholder="Energy, sleep, injuries, focus notes"></textarea>
+      </label>
+    </div>
+
+    <div class="section-title exercise-title">
+      <div>
+        <h2>Exercises</h2>
+        <p>{{ form.exercises.length }} movements in this session</p>
+      </div>
+      <button type="button" class="btn btn-primary" (click)="addExercise()" [disabled]="exercises.length === 0">Add Exercise</button>
+    </div>
+
+    <div class="empty-state compact" *ngIf="exercises.length === 0">
+      Add exercises first before creating a workout session.
+    </div>
+
+    <article class="exercise-card" *ngFor="let workoutExercise of form.exercises; let exerciseIndex = index">
+      <div class="exercise-header">
+        <div>
+          <strong>Exercise {{ exerciseIndex + 1 }}</strong>
+          <span>{{ getExerciseName(workoutExercise.exerciseId) }}</span>
+        </div>
+        <button type="button" class="btn btn-danger" (click)="removeExercise(exerciseIndex)" *ngIf="form.exercises.length > 1">
+          Remove
+        </button>
+      </div>
+
+      <div class="form-grid exercise-fields">
+        <label class="form-field">
+          <span>Exercise</span>
+          <select [name]="'exerciseId-' + exerciseIndex" [(ngModel)]="workoutExercise.exerciseId" required>
+            <option value="" disabled>Select exercise</option>
+            <option *ngFor="let exercise of exercises" [value]="exercise.id">
+              {{ exercise.name }} · {{ exercise.muscleGroupName }}
+            </option>
+          </select>
+        </label>
+
+        <label class="form-field">
+          <span>Exercise Notes</span>
+          <input [name]="'exerciseNotes-' + exerciseIndex" [(ngModel)]="workoutExercise.notes" placeholder="Tempo, grip, machine setting" />
+        </label>
+      </div>
+
+      <div class="sets-header">
+        <span>Sets</span>
+        <button type="button" class="btn btn-ghost" (click)="addSet(workoutExercise)">Add Set</button>
+      </div>
+
+      <div class="set-row set-heading">
+        <span>#</span>
+        <span>Weight</span>
+        <span>Reps</span>
+        <span>RPE</span>
+        <span>Warmup</span>
+        <span>Note</span>
+        <span></span>
+      </div>
+
+      <div class="set-row" *ngFor="let set of workoutExercise.sets; let setIndex = index">
+        <strong>{{ setIndex + 1 }}</strong>
+        <input type="number" [name]="'weight-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.weight" placeholder="80" min="0" step="0.5" />
+        <input type="number" [name]="'reps-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.reps" placeholder="8" min="0" required />
+        <input type="number" [name]="'rpe-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.rpe" placeholder="8" min="1" max="10" />
+        <label class="warmup-toggle">
+          <input type="checkbox" [name]="'warmup-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.isWarmup" />
+          <span>Warmup</span>
+        </label>
+        <input [name]="'note-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.resistanceNote" placeholder="Band, tempo, assistance" />
+        <button type="button" class="btn btn-danger" (click)="removeSet(workoutExercise, setIndex)" *ngIf="workoutExercise.sets.length > 1">
+          Delete
+        </button>
+      </div>
+    </article>
+
+    <p class="error-state compact" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <p class="success-state compact" *ngIf="successMessage">{{ successMessage }}</p>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-ghost" (click)="resetForm()">Reset</button>
+      <button type="submit" class="btn btn-primary" [disabled]="isSaving || exercises.length === 0">
+        {{ isSaving ? 'Saving...' : 'Create Workout Session' }}
+      </button>
+    </div>
+  </form>
+
+  <aside class="session-side">
+    <div class="card list-card">
+      <div class="section-title table-title">
+        <div>
+          <h2>Recent Sessions</h2>
+          <p>{{ sessions.length }} logged sessions</p>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="isLoading">Loading sessions...</div>
+      <div class="empty-state" *ngIf="!isLoading && sessions.length === 0">No workout sessions yet.</div>
+
+      <div class="session-list" *ngIf="!isLoading && sessions.length > 0">
+        <article class="session-row" *ngFor="let session of sessions">
+          <div>
+            <strong>{{ session.title }}</strong>
+            <span>{{ session.sessionDate | date: 'mediumDate' }}</span>
+          </div>
+          <div class="session-meta">
+            <span>{{ session.durationMinutes || 0 }} min</span>
+            <span>{{ session.totalVolume || 0 | number: '1.0-0' }} kg</span>
+          </div>
+          <div class="table-actions">
+            <button type="button" class="btn btn-ghost" (click)="viewDetails(session)">View</button>
+            <button type="button" class="btn btn-danger" (click)="delete(session)">Delete</button>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="card details-card" *ngIf="selectedSession">
+      <div class="section-title">
+        <h2>{{ selectedSession.title }}</h2>
+        <p>{{ selectedSession.sessionDate | date: 'fullDate' }}</p>
+      </div>
+
+      <div class="details-metrics">
+        <div>
+          <span>Duration</span>
+          <strong>{{ selectedSession.durationMinutes || 0 }} min</strong>
+        </div>
+        <div>
+          <span>Volume</span>
+          <strong>{{ selectedSession.totalVolume || 0 | number: '1.0-0' }} kg</strong>
+        </div>
+      </div>
+
+      <article class="detail-exercise" *ngFor="let exercise of selectedSession.exercises">
+        <strong>{{ exercise.exerciseName }}</strong>
+        <span>{{ exercise.sets.length }} sets</span>
+        <div class="detail-set" *ngFor="let set of exercise.sets">
+          <span>#{{ set.setNumber }}</span>
+          <span>{{ set.weight || 0 }}kg</span>
+          <span>{{ set.reps }} reps</span>
+          <span>RPE {{ set.rpe || '-' }}</span>
+        </div>
+      </article>
+    </div>
+  </aside>
+</section>

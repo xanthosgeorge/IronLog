@@ -75,6 +75,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(x => x.BodyWeight)
                 .HasPrecision(6, 2);
 
+            entity.Property(x => x.TotalLoad)
+                .HasPrecision(12, 2)
+                .IsRequired();
+
             entity.Property(x => x.Notes)
                 .HasMaxLength(2000);
 

@@ -19,7 +19,10 @@ export const routes: Routes = [
         path: 'exercises',
         loadChildren: () => import('./features/exercises/exercises.routes').then((m) => m.exercisesRoutes)
       },
-      { path: 'workout-sessions', redirectTo: 'dashboard' },
+      {
+        path: 'workout-sessions',
+        loadChildren: () => import('./features/workout-sessions/workout-sessions.routes').then((m) => m.workoutSessionsRoutes)
+      },
       { path: 'progress', redirectTo: 'dashboard' },
       { path: 'analytics', redirectTo: 'dashboard' },
       { path: 'settings', redirectTo: 'dashboard' }

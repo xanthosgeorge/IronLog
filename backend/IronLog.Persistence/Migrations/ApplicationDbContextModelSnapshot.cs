@@ -170,6 +170,10 @@ namespace IronLog.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<decimal>("TotalLoad")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
