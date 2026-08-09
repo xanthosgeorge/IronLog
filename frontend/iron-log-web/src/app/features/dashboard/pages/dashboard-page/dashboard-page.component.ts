@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { NgFor } from '@angular/common';
+
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [NgFor],
+  imports: [],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })

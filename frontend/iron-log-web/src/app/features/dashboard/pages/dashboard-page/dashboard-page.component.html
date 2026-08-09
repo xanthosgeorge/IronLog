@@ -7,14 +7,16 @@
   </div>
 
   <div class="metrics-grid">
-    <article class="metric-card card" *ngFor="let metric of metrics">
-      <div class="metric-icon">{{ metric.icon }}</div>
-      <div>
-        <span>{{ metric.label }}</span>
-        <strong>{{ metric.value }}</strong>
-        <p>{{ metric.detail }}</p>
-      </div>
-    </article>
+    @for (metric of metrics; track metric) {
+      <article class="metric-card card">
+        <div class="metric-icon">{{ metric.icon }}</div>
+        <div>
+          <span>{{ metric.label }}</span>
+          <strong>{{ metric.value }}</strong>
+          <p>{{ metric.detail }}</p>
+        </div>
+      </article>
+    }
   </div>
 
   <div class="dashboard-grid">
@@ -67,11 +69,13 @@
           <span>August 12, 2024 · 1h 10m</span>
         </div>
       </div>
-      <div class="workout-row" *ngFor="let row of ['Bench Press|25kg|8, 8, 7', 'Incline Dumbbell Press|22.5kg|9, 8, 8', 'Pull Ups|BW|10, 8, 6', 'Cable Fly|15kg|12, 12, 10']">
-        <span>{{ row.split('|')[0] }}</span>
-        <span>{{ row.split('|')[1] }}</span>
-        <span>{{ row.split('|')[2] }}</span>
-      </div>
+      @for (row of ['Bench Press|25kg|8, 8, 7', 'Incline Dumbbell Press|22.5kg|9, 8, 8', 'Pull Ups|BW|10, 8, 6', 'Cable Fly|15kg|12, 12, 10']; track row) {
+        <div class="workout-row">
+          <span>{{ row.split('|')[0] }}</span>
+          <span>{{ row.split('|')[1] }}</span>
+          <span>{{ row.split('|')[2] }}</span>
+        </div>
+      }
       <button type="button" class="btn btn-ghost">View Workout</button>
     </article>
 
@@ -80,22 +84,24 @@
         <h2>Exercise Performance</h2>
         <a>View All Exercises</a>
       </div>
-      <div class="performance-row" *ngFor="let item of performance">
-        <div class="round-icon">{{ item.name.charAt(0) }}</div>
-        <div>
-          <strong>{{ item.name }}</strong>
-          <span>{{ item.group }}</span>
+      @for (item of performance; track item) {
+        <div class="performance-row">
+          <div class="round-icon">{{ item.name.charAt(0) }}</div>
+          <div>
+            <strong>{{ item.name }}</strong>
+            <span>{{ item.group }}</span>
+          </div>
+          <div>
+            <span>{{ item.metric }}</span>
+            <strong>{{ item.value }}</strong>
+          </div>
+          <div class="sparkline"></div>
+          <div class="change">
+            <strong>{{ item.change }}</strong>
+            <span>vs last 30 days</span>
+          </div>
         </div>
-        <div>
-          <span>{{ item.metric }}</span>
-          <strong>{{ item.value }}</strong>
-        </div>
-        <div class="sparkline"></div>
-        <div class="change">
-          <strong>{{ item.change }}</strong>
-          <span>vs last 30 days</span>
-        </div>
-      </div>
+      }
     </article>
 
     <article class="recent-card card">
@@ -103,15 +109,17 @@
         <h2>Recent Workouts</h2>
         <a>View All</a>
       </div>
-      <div class="recent-row" *ngFor="let workout of recentWorkouts">
-        <div class="round-icon">{{ workout.name.charAt(0) }}</div>
-        <div>
-          <strong>{{ workout.name }}</strong>
-          <span>{{ workout.date }}</span>
+      @for (workout of recentWorkouts; track workout) {
+        <div class="recent-row">
+          <div class="round-icon">{{ workout.name.charAt(0) }}</div>
+          <div>
+            <strong>{{ workout.name }}</strong>
+            <span>{{ workout.date }}</span>
+          </div>
+          <span>{{ workout.duration }}</span>
+          <span>{{ workout.volume }}</span>
         </div>
-        <span>{{ workout.duration }}</span>
-        <span>{{ workout.volume }}</span>
-      </div>
+      }
     </article>
   </div>
 

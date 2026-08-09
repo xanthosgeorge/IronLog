@@ -22,7 +22,9 @@
         <span>Muscle Group</span>
         <select name="muscleGroupId" [(ngModel)]="form.muscleGroupId" required>
           <option value="" disabled>Select muscle group</option>
-          <option *ngFor="let group of muscleGroups" [value]="group.id">{{ group.name }}</option>
+          @for (group of muscleGroups; track group) {
+            <option [value]="group.id">{{ group.name }}</option>
+          }
         </select>
       </label>
 
@@ -37,10 +39,14 @@
       </label>
     </div>
 
-    <p class="error-state compact" *ngIf="errorMessage">{{ errorMessage }}</p>
+    @if (errorMessage) {
+      <p class="error-state compact">{{ errorMessage }}</p>
+    }
 
     <div class="form-actions">
-      <button type="button" class="btn btn-ghost" (click)="resetForm()" *ngIf="editingId">Cancel</button>
+      @if (editingId) {
+        <button type="button" class="btn btn-ghost" (click)="resetForm()">Cancel</button>
+      }
       <button type="submit" class="btn btn-primary" [disabled]="isSaving || muscleGroups.length === 0">
         {{ isSaving ? 'Saving...' : editingId ? 'Save Changes' : 'Create Exercise' }}
       </button>
@@ -56,37 +62,45 @@
       <button type="button" class="btn btn-ghost" (click)="loadPageData()">Refresh</button>
     </div>
 
-    <div class="empty-state" *ngIf="isLoading">Loading exercises...</div>
-    <div class="empty-state" *ngIf="!isLoading && exercises.length === 0">No exercises yet.</div>
+    @if (isLoading) {
+      <div class="empty-state">Loading exercises...</div>
+    }
+    @if (!isLoading && exercises.length === 0) {
+      <div class="empty-state">No exercises yet.</div>
+    }
 
-    <table class="data-table" *ngIf="!isLoading && exercises.length > 0">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Muscle Group</th>
-          <th>Equipment</th>
-          <th>Status</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let exercise of exercises">
-          <td><strong>{{ exercise.name }}</strong></td>
-          <td>{{ getMuscleGroupName(exercise) }}</td>
-          <td>{{ exercise.equipmentType || 'Not set' }}</td>
-          <td>
-            <span class="status-pill" [class.is-active]="exercise.isActive">
-              {{ exercise.isActive ? 'Active' : 'Inactive' }}
-            </span>
-          </td>
-          <td>
-            <div class="table-actions">
-              <button type="button" class="btn btn-ghost" (click)="edit(exercise)">Edit</button>
-              <button type="button" class="btn btn-danger" (click)="delete(exercise)">Delete</button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    @if (!isLoading && exercises.length > 0) {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Muscle Group</th>
+            <th>Equipment</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (exercise of exercises; track exercise) {
+            <tr>
+              <td><strong>{{ exercise.name }}</strong></td>
+              <td>{{ getMuscleGroupName(exercise) }}</td>
+              <td>{{ exercise.equipmentType || 'Not set' }}</td>
+              <td>
+                <span class="status-pill" [class.is-active]="exercise.isActive">
+                  {{ exercise.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <div class="table-actions">
+                  <button type="button" class="btn btn-ghost" (click)="edit(exercise)">Edit</button>
+                  <button type="button" class="btn btn-danger" (click)="delete(exercise)">Delete</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
   </div>
 </section>

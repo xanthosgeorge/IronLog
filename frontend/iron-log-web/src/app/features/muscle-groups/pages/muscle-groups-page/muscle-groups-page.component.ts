@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { MuscleGroup, MuscleGroupPayload } from '../../models/muscle-group.model';
@@ -7,7 +7,7 @@ import { MuscleGroupService } from '../../services/muscle-group.service';
 
 @Component({
   selector: 'app-muscle-groups-page',
-  imports: [FormsModule, NgFor, NgIf],
+  imports: [FormsModule],
   templateUrl: './muscle-groups-page.component.html',
   styleUrl: './muscle-groups-page.component.scss'
 })

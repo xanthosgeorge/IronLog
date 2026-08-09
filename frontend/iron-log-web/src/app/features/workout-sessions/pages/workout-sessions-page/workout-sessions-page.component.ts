@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DatePipe, DecimalPipe, NgFor, NgIf } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Exercise } from '../../../exercises/models/exercise.model';
 import { ExerciseService } from '../../../exercises/services/exercise.service';
@@ -37,7 +37,7 @@ interface WorkoutSessionForm {
 
 @Component({
   selector: 'app-workout-sessions-page',
-  imports: [DatePipe, DecimalPipe, FormsModule, NgFor, NgIf],
+  imports: [DatePipe, DecimalPipe, FormsModule],
   templateUrl: './workout-sessions-page.component.html',
   styleUrl: './workout-sessions-page.component.scss'
 })

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { Exercise, ExercisePayload } from '../../models/exercise.model';
@@ -9,7 +9,7 @@ import { MuscleGroupService } from '../../../muscle-groups/services/muscle-group
 
 @Component({
   selector: 'app-exercises-page',
-  imports: [FormsModule, NgFor, NgIf],
+  imports: [FormsModule],
   templateUrl: './exercises-page.component.html',
   styleUrl: './exercises-page.component.scss'
 })
