@@ -49,6 +49,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasMaxLength(255)
                 .IsRequired();
 
+            entity.Property(x => x.PasswordHash)
+                .HasMaxLength(500)
+                .IsRequired();
+
             entity.Property(x => x.CreatedAt)
                 .IsRequired();
 
@@ -168,7 +172,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasForeignKey(x => x.MuscleGroupId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasIndex(x => x.Name)
+            entity.HasOne(x => x.User)
+                .WithMany(x => x.Exercises)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(x => new { x.UserId, x.Name })
                 .IsUnique();
         });
     }
@@ -188,7 +197,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(x => x.Description)
                 .HasMaxLength(1000);
 
-            entity.HasIndex(x => x.Name)
+            entity.HasOne(x => x.User)
+                .WithMany(x => x.MuscleGroups)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(x => new { x.UserId, x.Name })
                 .IsUnique();
         });
     }

@@ -44,7 +44,6 @@ export interface CreateWorkoutExerciseRequest {
 }
 
 export interface CreateWorkoutSessionRequest {
-  userId: string;
   title: string;
   sessionDate: string;
   durationMinutes?: number;

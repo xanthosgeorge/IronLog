@@ -2,11 +2,13 @@
 using IronLog.Domain.Entities;
 using IronLog.Persistence;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace IronLog.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class MuscleGroupsController : ControllerBase
 {
@@ -20,8 +22,12 @@ public class MuscleGroupsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<MuscleGroupDto>>> GetAll()
     {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
         var muscleGroups = await _context.MuscleGroups
             .AsNoTracking()
+            .Where(x => x.UserId == userId)
             .OrderBy(x => x.Name)
             .Select(x => new MuscleGroupDto
             {
@@ -37,9 +43,12 @@ public class MuscleGroupsController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<MuscleGroupDto>> GetById(Guid id)
     {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
         var muscleGroup = await _context.MuscleGroups
             .AsNoTracking()
-            .Where(x => x.Id == id)
+            .Where(x => x.Id == id && x.UserId == userId)
             .Select(x => new MuscleGroupDto
             {
                 Id = x.Id,
@@ -57,8 +66,12 @@ public class MuscleGroupsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<MuscleGroupDto>> Create(CreateMuscleGroupRequest request)
     {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
+        var normalizedName = request.Name.Trim();
         var exists = await _context.MuscleGroups
-            .AnyAsync(x => x.Name.ToLower() == request.Name.ToLower());
+            .AnyAsync(x => x.UserId == userId && x.Name.ToLower() == normalizedName.ToLower());
 
         if (exists)
             return Conflict("Muscle group already exists.");
@@ -66,7 +79,8 @@ public class MuscleGroupsController : ControllerBase
         var muscleGroup = new MuscleGroup
         {
             Id = Guid.NewGuid(),
-            Name = request.Name.Trim(),
+            UserId = userId,
+            Name = normalizedName,
             Description = request.Description?.Trim()
         };
 
@@ -86,7 +100,10 @@ public class MuscleGroupsController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, UpdateMuscleGroupRequest request)
     {
-        var muscleGroup = await _context.MuscleGroups.FindAsync(id);
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
+        var muscleGroup = await _context.MuscleGroups.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
 
         if (muscleGroup is null)
             return NotFound();
@@ -102,9 +119,12 @@ public class MuscleGroupsController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
         var muscleGroup = await _context.MuscleGroups
             .Include(x => x.Exercises)
-            .FirstOrDefaultAsync(x => x.Id == id);
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
 
         if (muscleGroup is null)
             return NotFound();
@@ -116,5 +136,11 @@ public class MuscleGroupsController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    private bool TryGetUserId(out Guid userId)
+    {
+        var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        return Guid.TryParse(claim, out userId);
     }
 }

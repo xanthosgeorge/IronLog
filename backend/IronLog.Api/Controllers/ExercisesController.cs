@@ -2,11 +2,13 @@ using IronLog.Application;
 using IronLog.Domain.Entities;
 using IronLog.Persistence;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace IronLog.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class ExercisesController : ControllerBase
 {
@@ -20,8 +22,12 @@ public class ExercisesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<ExerciseDto>>> GetAll()
     {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
         var exercises = await _context.Exercises
             .AsNoTracking()
+            .Where(x => x.UserId == userId)
             .OrderBy(x => x.Name)
             .Select(x => new ExerciseDto
             {
@@ -40,9 +46,12 @@ public class ExercisesController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ExerciseDto>> GetById(Guid id)
     {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
         var exercise = await _context.Exercises
             .AsNoTracking()
-            .Where(x => x.Id == id)
+            .Where(x => x.Id == id && x.UserId == userId)
             .Select(x => new ExerciseDto
             {
                 Id = x.Id,
@@ -63,8 +72,11 @@ public class ExercisesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<ExerciseDto>> Create(CreateExerciseRequest request)
     {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
         var muscleGroupExists = await _context.MuscleGroups
-            .AnyAsync(x => x.Id == request.MuscleGroupId);
+            .AnyAsync(x => x.Id == request.MuscleGroupId && x.UserId == userId);
 
         if (!muscleGroupExists)
             return BadRequest("Muscle group does not exist.");
@@ -72,7 +84,7 @@ public class ExercisesController : ControllerBase
         var normalizedName = request.Name.Trim();
 
         var exists = await _context.Exercises
-            .AnyAsync(x => x.Name.ToLower() == normalizedName.ToLower());
+            .AnyAsync(x => x.UserId == userId && x.Name.ToLower() == normalizedName.ToLower());
 
         if (exists)
             return Conflict("Exercise already exists.");
@@ -80,6 +92,7 @@ public class ExercisesController : ControllerBase
         var exercise = new Exercise
         {
             Id = Guid.NewGuid(),
+            UserId = userId,
             MuscleGroupId = request.MuscleGroupId,
             Name = normalizedName,
             EquipmentType = request.EquipmentType?.Trim() ?? string.Empty,
@@ -109,13 +122,16 @@ public class ExercisesController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, UpdateExerciseRequest request)
     {
-        var exercise = await _context.Exercises.FindAsync(id);
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
+        var exercise = await _context.Exercises.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
 
         if (exercise is null)
             return NotFound();
 
         var muscleGroupExists = await _context.MuscleGroups
-            .AnyAsync(x => x.Id == request.MuscleGroupId);
+            .AnyAsync(x => x.Id == request.MuscleGroupId && x.UserId == userId);
 
         if (!muscleGroupExists)
             return BadRequest("Muscle group does not exist.");
@@ -133,9 +149,12 @@ public class ExercisesController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
         var exercise = await _context.Exercises
             .Include(x => x.WorkoutExercises)
-            .FirstOrDefaultAsync(x => x.Id == id);
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
 
         if (exercise is null)
             return NotFound();
@@ -147,5 +166,11 @@ public class ExercisesController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    private bool TryGetUserId(out Guid userId)
+    {
+        var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        return Guid.TryParse(claim, out userId);
     }
 }

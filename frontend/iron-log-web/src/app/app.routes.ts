@@ -1,10 +1,14 @@
 import { Routes } from '@angular/router';
 import { AppShellComponent } from './shared/layout/app-shell/app-shell.component';
+import { authGuard } from './core/auth/auth.guard';
+import { LoginPageComponent } from './features/auth/pages/login-page/login-page.component';
 
 export const routes: Routes = [
+  { path: 'login', component: LoginPageComponent },
   {
     path: '',
     component: AppShellComponent,
+    canActivateChild: [authGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {

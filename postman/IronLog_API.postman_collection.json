@@ -1,0 +1,492 @@
+{
+  "info": {
+    "_postman_id": "2ad5c070-1b3d-4cf5-a81d-6975807d3e03",
+    "name": "IronLog API",
+    "description": "Complete Postman collection for the IronLog ASP.NET Core API.\n\nStart the API at {{baseUrl}} before sending requests. Register or log in first; the returned JWT is stored as {{accessToken}} and applied automatically to protected requests. Create a muscle group, then an exercise, before creating a workout session.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5090",
+      "type": "string"
+    },
+    {
+      "key": "muscleGroupId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "exerciseId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "workoutSessionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenExpiresAtUtc",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "Use Register or Login first. Each request saves the returned JWT to {{accessToken}} for the rest of the collection.",
+      "item": [
+        {
+          "name": "Register Athlete - Generate Access Token",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Doe\",\n  \"email\": \"jane.doe@example.com\",\n  \"password\": \"ChangeMe123!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/Auth/register",
+            "description": "Creates an athlete account. Passwords must contain at least eight characters."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
+                  "const session = pm.response.json();",
+                  "pm.expect(session.accessToken).to.be.a('string').and.not.empty;",
+                  "pm.collectionVariables.set('accessToken', session.accessToken);",
+                  "pm.collectionVariables.set('tokenExpiresAtUtc', session.expiresAtUtc);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login - Generate Access Token",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jane.doe@example.com\",\n  \"password\": \"ChangeMe123!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/Auth/login",
+            "description": "Authenticates an athlete and stores the returned JWT in {{accessToken}}."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "const session = pm.response.json();",
+                  "pm.expect(session.accessToken).to.be.a('string').and.not.empty;",
+                  "pm.collectionVariables.set('accessToken', session.accessToken);",
+                  "pm.collectionVariables.set('tokenExpiresAtUtc', session.expiresAtUtc);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Current Athlete",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/Auth/me",
+            "description": "Returns the profile associated with the current access token."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Muscle Groups",
+      "description": "Create a muscle group before creating an exercise. The collection stores the ID returned by Create Muscle Group in {{muscleGroupId}}.",
+      "item": [
+        {
+          "name": "List Muscle Groups",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/MuscleGroups",
+            "description": "Returns all muscle groups ordered by name."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Muscle Group by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/MuscleGroups/{{muscleGroupId}}",
+            "description": "Returns the muscle group referenced by {{muscleGroupId}}."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Muscle Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Chest\",\n  \"description\": \"Pectoral muscles\"\n}"
+            },
+            "url": "{{baseUrl}}/api/MuscleGroups",
+            "description": "Creates a muscle group. Names must be unique, ignoring case."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
+                  "const muscleGroup = pm.response.json();",
+                  "pm.collectionVariables.set('muscleGroupId', muscleGroup.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Muscle Group",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Chest\",\n  \"description\": \"Pectorals and supporting chest musculature\"\n}"
+            },
+            "url": "{{baseUrl}}/api/MuscleGroups/{{muscleGroupId}}",
+            "description": "Updates the muscle group referenced by {{muscleGroupId}}."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Muscle Group",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/MuscleGroups/{{muscleGroupId}}",
+            "description": "Deletes the muscle group. Returns 400 if exercises still reference it. Run this only after deleting dependent exercises."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Exercises",
+      "description": "Exercises require a valid {{muscleGroupId}}. Create an exercise before creating a workout session. The Create request stores its ID in {{exerciseId}}.",
+      "item": [
+        {
+          "name": "List Exercises",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/Exercises",
+            "description": "Returns all exercises ordered by name, including the muscle-group name and active status."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Exercise by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/Exercises/{{exerciseId}}",
+            "description": "Returns the exercise referenced by {{exerciseId}}."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Exercise",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"muscleGroupId\": \"{{muscleGroupId}}\",\n  \"name\": \"Barbell Bench Press\",\n  \"equipmentType\": \"Barbell\"\n}"
+            },
+            "url": "{{baseUrl}}/api/Exercises",
+            "description": "Creates an active exercise. Exercise names must be unique, ignoring case."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
+                  "const exercise = pm.response.json();",
+                  "pm.collectionVariables.set('exerciseId', exercise.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Exercise",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"muscleGroupId\": \"{{muscleGroupId}}\",\n  \"name\": \"Barbell Bench Press\",\n  \"equipmentType\": \"Olympic barbell\",\n  \"isActive\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/Exercises/{{exerciseId}}",
+            "description": "Updates the exercise referenced by {{exerciseId}}."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Exercise",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/Exercises/{{exerciseId}}",
+            "description": "Deletes the exercise. Returns 400 if it is referenced by a workout session. Run this only after deleting dependent workout sessions."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Workout Sessions",
+      "description": "Workout-session creation requires an authenticated athlete and an existing exercise ID in {{exerciseId}}. The user is identified from the bearer token, not from the request body.",
+      "item": [
+        {
+          "name": "List Workout Sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/WorkoutSessions",
+            "description": "Returns workout-session summaries ordered by most recent session date."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Workout Session Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/WorkoutSessions/{{workoutSessionId}}",
+            "description": "Returns the complete workout session with ordered exercises and sets."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Workout Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Upper A\",\n  \"sessionDate\": \"2026-08-10T18:00:00Z\",\n  \"bodyWeight\": 82.5,\n  \"durationMinutes\": 65,\n  \"notes\": \"Strong bench-press session.\",\n  \"exercises\": [\n    {\n      \"exerciseId\": \"{{exerciseId}}\",\n      \"orderIndex\": 1,\n      \"notes\": \"Pause briefly on the chest.\",\n      \"sets\": [\n        {\n          \"setNumber\": 1,\n          \"weight\": 20,\n          \"reps\": 12,\n          \"resistanceNote\": null,\n          \"rpe\": 5,\n          \"isWarmup\": true\n        },\n        {\n          \"setNumber\": 2,\n          \"weight\": 80,\n          \"reps\": 8,\n          \"resistanceNote\": null,\n          \"rpe\": 8,\n          \"isWarmup\": false\n        },\n        {\n          \"setNumber\": 3,\n          \"weight\": 80,\n          \"reps\": 7,\n          \"resistanceNote\": null,\n          \"rpe\": 9,\n          \"isWarmup\": false\n        }\n      ]\n    }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/api/WorkoutSessions",
+            "description": "Creates a workout session. Total load is calculated server-side as the sum of each set's weight multiplied by reps. The API returns an object containing the new ID."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
+                  "const workoutSession = pm.response.json();",
+                  "pm.collectionVariables.set('workoutSessionId', workoutSession.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Workout Session",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/WorkoutSessions/{{workoutSessionId}}",
+            "description": "Deletes the workout session and cascades deletion to its workout exercises and sets."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

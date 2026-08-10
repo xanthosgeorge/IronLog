@@ -2,11 +2,13 @@ using IronLog.Application.WorkoutSessions;
 using IronLog.Domain.Entities;
 using IronLog.Persistence;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace IronLog.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class WorkoutSessionsController : ControllerBase
 {
@@ -20,8 +22,12 @@ public class WorkoutSessionsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<WorkoutSessionDto>>> GetAll()
     {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
         var sessions = await _context.WorkoutSessions
             .AsNoTracking()
+            .Where(x => x.UserId == userId)
             .OrderByDescending(x => x.SessionDate)
             .Select(x => new WorkoutSessionDto
             {
@@ -41,9 +47,12 @@ public class WorkoutSessionsController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<WorkoutSessionDto>> GetById(Guid id)
     {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
         var session = await _context.WorkoutSessions
             .AsNoTracking()
-            .Where(x => x.Id == id)
+            .Where(x => x.Id == id && x.UserId == userId)
             .Select(x => new WorkoutSessionDto
             {
                 Id = x.Id,
@@ -89,11 +98,8 @@ public class WorkoutSessionsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<WorkoutSessionDto>> Create(CreateWorkoutSessionRequest request)
     {
-        var userExists = await _context.Users
-            .AnyAsync(x => x.Id == request.UserId);
-
-        if (!userExists)
-            return BadRequest("User does not exist.");
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
 
         var exerciseIds = request.Exercises
             .Select(x => x.ExerciseId)
@@ -109,7 +115,7 @@ public class WorkoutSessionsController : ControllerBase
         var session = new WorkoutSession
         {
             Id = Guid.NewGuid(),
-            UserId = request.UserId,
+            UserId = userId,
             Title = request.Title.Trim(),
             SessionDate = request.SessionDate,
             BodyWeight = request.BodyWeight,
@@ -151,10 +157,13 @@ public class WorkoutSessionsController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
         var session = await _context.WorkoutSessions
             .Include(x => x.WorkoutExercises)
             .ThenInclude(x => x.WorkoutSets)
-            .FirstOrDefaultAsync(x => x.Id == id);
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
 
         if (session is null)
             return NotFound();
@@ -163,5 +172,11 @@ public class WorkoutSessionsController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    private bool TryGetUserId(out Guid userId)
+    {
+        var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        return Guid.TryParse(claim, out userId);
     }
 }

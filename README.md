@@ -13,6 +13,7 @@ The application is a full-stack project with an Angular single-page application,
 - Calculate and store the total training load for each workout session.
 - View workout-session lists and details.
 - Protect workout history by preventing deletion of exercises or muscle groups that are still in use.
+- Create an athlete account, sign in, and maintain a JWT-backed browser session.
 
 ## Technology stack
 
@@ -141,22 +142,26 @@ The frontend API URL is configured in [frontend/iron-log-web/src/environments/en
 
 | Resource | Endpoint | Operations |
 | --- | --- | --- |
+| Authentication | `/api/Auth` | Register, login, view authenticated profile |
 | Muscle groups | `/api/MuscleGroups` | List, get by ID, create, update, delete |
 | Exercises | `/api/Exercises` | List, get by ID, create, update, delete |
 | Workout sessions | `/api/WorkoutSessions` | List, get details, create, delete |
 
 `GET /api/WorkoutSessions` returns a session summary. `GET /api/WorkoutSessions/{id}` returns the complete nested exercise and set structure.
 
-## Workout-user setup
+All workout, exercise, and muscle-group endpoints require a bearer token. Register or sign in through the UI first; the Angular HTTP interceptor attaches the access token to API requests automatically. Workout sessions are scoped to the authenticated athlete, and their user ID is taken from the signed-in token rather than the request body.
 
-Workout sessions belong to a `User`. Authentication and user-management endpoints have not been implemented yet, so the frontend requires an existing user ID in this configuration value:
+## Authentication
 
-```ts
-// frontend/iron-log-web/src/environments/environment.ts
-currentAthleteId: ''
-```
+The application provides these public endpoints:
 
-Until a valid database user ID is configured, the UI prevents workout-session creation. Muscle-group and exercise management work independently of this setting.
+| Endpoint | Description |
+| --- | --- |
+| `POST /api/Auth/register` | Creates an athlete account and returns an access token. |
+| `POST /api/Auth/login` | Validates email/password credentials and returns an access token. |
+| `GET /api/Auth/me` | Returns the signed-in athlete profile. |
+
+Passwords are stored as ASP.NET Core Identity password hashes. Tokens expire after eight hours by default. The development JWT signing key in `appsettings.json` must be replaced with a secret supplied through secure production configuration before deployment.
 
 ## Development commands
 
@@ -197,7 +202,6 @@ To remove the database volume as well, use `docker compose -f database/docker-co
 
 ## Current limitations and next steps
 
-- No authentication, registration, or user-profile workflow.
 - Progress, Analytics, and Settings are navigation placeholders that redirect to Dashboard.
 - `IronLog.Infrastructure` is a placeholder project.
 - API controllers currently contain persistence/query logic that could move into application services or commands/queries.

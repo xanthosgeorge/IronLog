@@ -35,9 +35,10 @@
     <div class="athlete-card">
       <div class="avatar">JD</div>
       <div>
-        <strong>John Doe</strong>
-        <span>Level 12</span>
+        <strong>{{ auth.currentUser()?.firstName }} {{ auth.currentUser()?.lastName }}</strong>
+        <span>{{ auth.currentUser()?.email }}</span>
       </div>
+      <button type="button" class="logout-button" (click)="auth.logout()" routerLink="/login">Log out</button>
     </div>
   </aside>
 

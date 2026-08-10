@@ -2,8 +2,6 @@ namespace IronLog.Application.WorkoutSessions;
 
 public class CreateWorkoutSessionRequest
 {
-    public Guid UserId { get; set; }
-
     public string Title { get; set; } = string.Empty;
 
     public DateTime SessionDate { get; set; }

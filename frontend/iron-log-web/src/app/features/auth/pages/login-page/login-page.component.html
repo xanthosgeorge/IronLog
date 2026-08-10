@@ -1,0 +1,67 @@
+<main class="login-page">
+  <section class="login-card">
+    <div class="brand">
+      <div class="mark">I</div>
+      <div>
+        <h1>IRON <span>LOG</span></h1>
+        <p>Performance OS</p>
+      </div>
+    </div>
+
+    <div class="heading">
+      <p class="eyebrow">ATHLETE ACCESS</p>
+      <h2>{{ isRegistering ? 'Create your account' : 'Welcome back' }}</h2>
+      <p>{{ isRegistering ? 'Start logging your training today.' : 'Sign in to continue your training log.' }}</p>
+    </div>
+
+    <form (ngSubmit)="submit()">
+      @if (isRegistering) {
+        <div class="name-row">
+          <label>
+            First name
+            <input name="firstName" [(ngModel)]="registerForm.firstName" autocomplete="given-name" />
+          </label>
+          <label>
+            Last name
+            <input name="lastName" [(ngModel)]="registerForm.lastName" autocomplete="family-name" />
+          </label>
+        </div>
+      }
+
+      @if (isRegistering) {
+        <label>
+          Email address
+          <input name="registerEmail" type="email" [(ngModel)]="registerForm.email" autocomplete="email" />
+        </label>
+        <label>
+          Password
+          <input name="registerPassword" type="password" [(ngModel)]="registerForm.password" autocomplete="new-password" />
+        </label>
+      } @else {
+        <label>
+          Email address
+          <input name="loginEmail" type="email" [(ngModel)]="loginForm.email" autocomplete="email" />
+        </label>
+        <label>
+          Password
+          <input name="loginPassword" type="password" [(ngModel)]="loginForm.password" autocomplete="current-password" />
+        </label>
+      }
+
+      @if (errorMessage) {
+        <p class="error-message">{{ errorMessage }}</p>
+      }
+
+      <button type="submit" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Please wait...' : isRegistering ? 'Create account' : 'Sign in' }}
+      </button>
+    </form>
+
+    <p class="mode-toggle">
+      {{ isRegistering ? 'Already have an account?' : 'New to IronLog?' }}
+      <button type="button" (click)="toggleMode()">
+        {{ isRegistering ? 'Sign in' : 'Create an account' }}
+      </button>
+    </p>
+  </section>
+</main>

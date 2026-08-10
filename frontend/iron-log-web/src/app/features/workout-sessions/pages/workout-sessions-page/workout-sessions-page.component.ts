@@ -3,7 +3,6 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Exercise } from '../../../exercises/models/exercise.model';
 import { ExerciseService } from '../../../exercises/services/exercise.service';
-import { environment } from '../../../../../environments/environment';
 import {
   CreateWorkoutExerciseRequest,
   CreateWorkoutSessionRequest,
@@ -89,11 +88,6 @@ export class WorkoutSessionsPageComponent implements OnInit {
   save(): void {
     this.errorMessage = '';
     this.successMessage = '';
-
-    if (!environment.currentAthleteId) {
-      this.errorMessage = 'Athlete profile is not configured yet.';
-      return;
-    }
 
     if (!this.form.title.trim()) {
       this.errorMessage = 'Workout title is required.';
@@ -189,7 +183,6 @@ export class WorkoutSessionsPageComponent implements OnInit {
 
   private toPayload(): CreateWorkoutSessionRequest {
     return {
-      userId: environment.currentAthleteId,
       title: this.form.title.trim(),
       sessionDate: new Date(this.form.sessionDate).toISOString(),
       durationMinutes: this.form.durationMinutes ?? undefined,

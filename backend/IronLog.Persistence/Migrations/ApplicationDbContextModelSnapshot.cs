@@ -44,11 +44,14 @@ namespace IronLog.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("MuscleGroupId");
 
-                    b.HasIndex("Name")
+                    b.HasIndex("UserId", "Name")
                         .IsUnique();
 
                     b.ToTable("exercises", (string)null);
@@ -69,9 +72,12 @@ namespace IronLog.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
+                    b.HasIndex("UserId", "Name")
                         .IsUnique();
 
                     b.ToTable("muscle_groups", (string)null);
@@ -100,6 +106,11 @@ namespace IronLog.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
 
@@ -229,7 +240,26 @@ namespace IronLog.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("IronLog.Domain.Entities.User", "User")
+                        .WithMany("Exercises")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("MuscleGroup");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("IronLog.Domain.Entities.MuscleGroup", b =>
+                {
+                    b.HasOne("IronLog.Domain.Entities.User", "User")
+                        .WithMany("MuscleGroups")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("IronLog.Domain.Entities.WorkoutExercise", b =>
@@ -285,6 +315,10 @@ namespace IronLog.Persistence.Migrations
 
             modelBuilder.Entity("IronLog.Domain.Entities.User", b =>
                 {
+                    b.Navigation("Exercises");
+
+                    b.Navigation("MuscleGroups");
+
                     b.Navigation("WorkoutSessions");
                 });
 
