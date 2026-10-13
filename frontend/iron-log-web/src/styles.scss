@@ -4,8 +4,10 @@
   --panel: #171a21;
   --panel-2: #20242d;
   --border: #2a2f3a;
-  --red: #e53935;
-  --red-dark: #a90f0f;
+  --accent: #e53935;
+  --accent-dark: #a90f0f;
+  --accent-soft: #ff8581;
+  --accent-rgb: 229, 57, 53;
   --text: #ffffff;
   --muted: #a5acb8;
   --soft: #d3d7df;
@@ -16,7 +18,7 @@
 }
 
 html {
-  min-width: 1024px;
+  min-width: 320px;
   background: var(--bg);
 }
 
@@ -82,8 +84,8 @@ button {
 }
 
 .btn-primary {
-  border-color: rgba(229, 57, 53, 0.7);
-  background: linear-gradient(135deg, var(--red), var(--red-dark));
+  border-color: rgba(var(--accent-rgb), 0.7);
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
   color: var(--text);
 }
 
@@ -127,8 +129,8 @@ button {
     outline: none;
 
     &:focus {
-      border-color: rgba(229, 57, 53, 0.76);
-      box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.12);
+      border-color: rgba(var(--accent-rgb), 0.76);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
     }
   }
 
@@ -193,8 +195,8 @@ button {
 }
 
 .status-pill.is-active {
-  background: rgba(229, 57, 53, 0.13);
-  color: #ff8581;
+  background: rgba(var(--accent-rgb), 0.13);
+  color: var(--accent-soft);
 }
 
 .empty-state,

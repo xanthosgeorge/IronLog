@@ -1,27 +1,27 @@
 <section class="page-header">
   <div>
-    <h1>Exercises</h1>
-    <p>Build and maintain the exercise library used in workout sessions.</p>
+    <h1>{{ 'Exercises' | translate }}</h1>
+    <p>{{ 'Build and maintain the exercise library used in workout sessions.' | translate }}</p>
   </div>
+  <button type="button" class="btn btn-primary" (click)="openCreateDialog()">{{ 'Create Exercise' | translate }}</button>
 </section>
 
-<section class="management-grid">
-  <form class="card editor-card" (ngSubmit)="save()">
+<dialog #exerciseDialog class="exercise-dialog" aria-labelledby="exercise-dialog-title" (close)="onDialogClose()" (cancel)="onDialogCancel($event)">
+  <form (ngSubmit)="save()">
     <div class="section-title">
-      <h2>{{ editingId ? 'Edit Exercise' : 'Create Exercise' }}</h2>
-      <p>{{ editingId ? 'Update movement details.' : 'Add a movement and assign it to a muscle group.' }}</p>
+      <h2 id="exercise-dialog-title">{{ (editingId ? 'Edit Exercise' : 'Create Exercise') | translate }}</h2>
     </div>
 
-    <div class="form-grid single-column">
+    <fieldset class="form-grid single-column" [disabled]="isSaving">
       <label class="form-field">
-        <span>Name</span>
-        <input name="name" [(ngModel)]="form.name" placeholder="Bench Press" required />
+        <span>{{ 'Name' | translate }}</span>
+        <input name="name" [(ngModel)]="form.name" [placeholder]="'Bench Press' | translate" required autofocus />
       </label>
 
       <label class="form-field">
-        <span>Muscle Group</span>
+        <span>{{ 'Muscle Group' | translate }}</span>
         <select name="muscleGroupId" [(ngModel)]="form.muscleGroupId" required>
-          <option value="" disabled>Select muscle group</option>
+          <option value="" disabled>{{ 'Select muscle group' | translate }}</option>
           @for (group of muscleGroups; track group) {
             <option [value]="group.id">{{ group.name }}</option>
           }
@@ -29,54 +29,58 @@
       </label>
 
       <label class="form-field">
-        <span>Equipment Type</span>
-        <input name="equipmentType" [(ngModel)]="form.equipmentType" placeholder="Barbell, Dumbbell, Machine" />
+        <span>{{ 'Equipment Type' | translate }}</span>
+        <input name="equipmentType" [(ngModel)]="form.equipmentType" [placeholder]="'Barbell, Dumbbell, Machine' | translate" />
       </label>
 
       <label class="toggle-row">
         <input type="checkbox" name="isActive" [(ngModel)]="form.isActive" />
-        <span>Active exercise</span>
+        <span>{{ 'Active exercise' | translate }}</span>
       </label>
-    </div>
+    </fieldset>
 
     @if (errorMessage) {
-      <p class="error-state compact">{{ errorMessage }}</p>
+      <p class="error-state compact" role="alert">{{ (errorMessage) | translate }}</p>
     }
 
     <div class="form-actions">
-      @if (editingId) {
-        <button type="button" class="btn btn-ghost" (click)="resetForm()">Cancel</button>
-      }
+      <button type="button" class="btn btn-ghost" (click)="closeDialog()" [disabled]="isSaving">{{ 'Cancel' | translate }}</button>
       <button type="submit" class="btn btn-primary" [disabled]="isSaving || muscleGroups.length === 0">
-        {{ isSaving ? 'Saving...' : editingId ? 'Save Changes' : 'Create Exercise' }}
+        {{ (isSaving ? 'Saving...' : 'Save') | translate }}
       </button>
     </div>
   </form>
+</dialog>
 
-  <div class="card table-card">
+<section class="table-card">
     <div class="section-title table-title">
       <div>
-        <h2>Exercise Library</h2>
-        <p>{{ exercises.length }} movements configured</p>
+        <h2>{{ 'Exercise Library' | translate }}</h2>
+        <p>{{ exercises.length }} {{ 'movements configured' | translate }}</p>
       </div>
-      <button type="button" class="btn btn-ghost" (click)="loadPageData()">Refresh</button>
+      <button type="button" class="btn btn-ghost" (click)="loadPageData()">{{ 'Refresh' | translate }}</button>
     </div>
 
+    @if (errorMessage && !exerciseDialog.open) {
+      <p class="error-state compact" role="alert">{{ errorMessage | translate }}</p>
+    }
+
     @if (isLoading) {
-      <div class="empty-state">Loading exercises...</div>
+      <div class="empty-state">{{ 'Loading exercises...' | translate }}</div>
     }
     @if (!isLoading && exercises.length === 0) {
-      <div class="empty-state">No exercises yet.</div>
+      <div class="empty-state">{{ 'No exercises yet.' | translate }}</div>
     }
 
     @if (!isLoading && exercises.length > 0) {
+      <div class="table-scroll">
       <table class="data-table">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Muscle Group</th>
-            <th>Equipment</th>
-            <th>Status</th>
+            <th>{{ 'Name' | translate }}</th>
+            <th>{{ 'Muscle Group' | translate }}</th>
+            <th>{{ 'Equipment' | translate }}</th>
+            <th>{{ 'Status' | translate }}</th>
             <th></th>
           </tr>
         </thead>
@@ -85,22 +89,22 @@
             <tr>
               <td><strong>{{ exercise.name }}</strong></td>
               <td>{{ getMuscleGroupName(exercise) }}</td>
-              <td>{{ exercise.equipmentType || 'Not set' }}</td>
+              <td>{{ exercise.equipmentType || ('Not set' | translate) }}</td>
               <td>
                 <span class="status-pill" [class.is-active]="exercise.isActive">
-                  {{ exercise.isActive ? 'Active' : 'Inactive' }}
+                  {{ (exercise.isActive ? 'Active' : 'Inactive') | translate }}
                 </span>
               </td>
               <td>
                 <div class="table-actions">
-                  <button type="button" class="btn btn-ghost" (click)="edit(exercise)">Edit</button>
-                  <button type="button" class="btn btn-danger" (click)="delete(exercise)">Delete</button>
+                  <button type="button" class="btn btn-ghost" (click)="edit(exercise)">{{ 'Edit' | translate }}</button>
+                  <button type="button" class="btn btn-danger" (click)="delete(exercise)">{{ 'Delete' | translate }}</button>
                 </div>
               </td>
             </tr>
           }
         </tbody>
       </table>
+      </div>
     }
-  </div>
 </section>

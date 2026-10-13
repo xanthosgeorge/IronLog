@@ -14,12 +14,22 @@ DECLARE
 BEGIN
   SELECT "Id" INTO STRICT athlete FROM users WHERE lower("Email") = current_setting('ironlog.seed_email');
   PERFORM pg_advisory_xact_lock(hashtextextended(athlete::text, 0));
-  FOR workout IN SELECT * FROM (VALUES
+  FOR workout IN SELECT w.title,
+    w.session_date + progression.day_offset * interval '1 day' AS session_date,
+    w.duration, progression.weight_factor, progression.rep_offset
+  FROM (VALUES
     ('Upper A', '2026-10-05 17:00:00+03'::timestamptz, 60),
     ('Lower A', '2026-10-06 17:00:00+03'::timestamptz, 65),
     ('Upper B', '2026-10-09 17:00:00+03'::timestamptz, 55),
     ('Lower B', '2026-10-10 17:00:00+03'::timestamptz, 65)
-  ) AS w(title, session_date, duration) LOOP
+  ) AS w(title, session_date, duration)
+  CROSS JOIN (VALUES
+    (-21, 0.85, -2),
+    (-14, 0.90, -1),
+    (-7, 0.95, 0),
+    (0, 1.00, 0)
+  ) AS progression(day_offset, weight_factor, rep_offset)
+  ORDER BY session_date LOOP
     IF EXISTS (SELECT 1 FROM workout_sessions WHERE "UserId" = athlete
       AND "Title" = workout.title AND "SessionDate" = workout.session_date
       AND "Notes" = 'Mock workout for testing the application.') THEN
@@ -63,7 +73,13 @@ BEGIN
       INSERT INTO workout_exercises ("Id", "WorkoutSessionId", "ExerciseId", "OrderIndex")
       VALUES (workout_exercise_id, session_id, exercise_id, prescription.position);
       INSERT INTO workout_sets ("Id", "WorkoutExerciseId", "SetNumber", "Weight", "Reps", "Rpe", "IsWarmup")
-      SELECT gen_random_uuid(), workout_exercise_id, n, prescription.weight, prescription.reps, 6 + n, false FROM generate_series(1, 3) n;
+      SELECT gen_random_uuid(), workout_exercise_id, n,
+        CASE WHEN workout.weight_factor = 1 THEN prescription.weight
+          WHEN prescription.equipment = 'Dumbbell' THEN greatest(2, round(prescription.weight * workout.weight_factor / 2) * 2)
+          ELSE greatest(2.5, round(prescription.weight * workout.weight_factor / 2.5) * 2.5)
+        END,
+        prescription.reps + workout.rep_offset, 6 + n, false
+      FROM generate_series(1, 3) n;
     END LOOP;
     UPDATE workout_sessions SET "TotalLoad" = (
       SELECT sum(s."Weight" * s."Reps") FROM workout_sets s

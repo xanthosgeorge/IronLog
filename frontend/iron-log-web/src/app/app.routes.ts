@@ -29,7 +29,7 @@ export const routes: Routes = [
       },
       { path: 'progress', redirectTo: 'dashboard' },
       { path: 'analytics', redirectTo: 'dashboard' },
-      { path: 'settings', redirectTo: 'dashboard' }
+      { path: 'settings', loadComponent: () => import('./features/settings/settings-page.component').then(m => m.SettingsPageComponent) }
     ]
   },
   { path: '**', redirectTo: 'dashboard' }

@@ -4,57 +4,46 @@
       <div class="mark">I</div>
       <div>
         <h1>IRON <span>LOG</span></h1>
-        <p>Performance OS</p>
+        <p>{{ 'Performance OS' | translate }}</p>
       </div>
     </div>
 
     <nav class="sidebar-nav">
       <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-        <span>01</span> Dashboard
+        <span>01</span> {{ 'Progress' | translate }}
       </a>
       <a routerLink="/exercises" routerLinkActive="active">
-        <span>02</span> Exercises
+        <span>02</span> {{ 'Exercises' | translate }}
       </a>
       <a routerLink="/muscle-groups" routerLinkActive="active">
-        <span>03</span> Muscle Groups
+        <span>03</span> {{ 'Muscle Groups' | translate }}
       </a>
       <a routerLink="/workout-sessions" routerLinkActive="active">
-        <span>04</span> Workout Sessions
-      </a>
-      <a routerLink="/progress" routerLinkActive="active">
-        <span>05</span> Progress
-      </a>
-      <a routerLink="/analytics" routerLinkActive="active">
-        <span>06</span> Analytics
+        <span>04</span> {{ 'Workout Sessions' | translate }}
       </a>
       <a routerLink="/settings" routerLinkActive="active">
-        <span>07</span> Settings
+        <span>05</span> {{ 'Settings' | translate }}
       </a>
     </nav>
 
     <div class="athlete-card">
-      <div class="avatar">JD</div>
-      <div>
-        <strong>{{ auth.currentUser()?.firstName }} {{ auth.currentUser()?.lastName }}</strong>
-        <span>{{ auth.currentUser()?.email }}</span>
+      <div class="avatar" aria-hidden="true">
+        @if (avatar.photo()) { <img [src]="avatar.photo()" alt="" /> }
+        @else { {{ avatar.initials() }} }
       </div>
-      <button type="button" class="logout-button" (click)="auth.logout()" routerLink="/login">Log out</button>
+      <div class="athlete-details">
+        <strong>{{ auth.currentUser()?.firstName }} {{ auth.currentUser()?.lastName }}</strong>
+        <span [title]="auth.currentUser()?.email || ''">{{ auth.currentUser()?.email }}</span>
+      </div>
+      <button type="button" class="logout-button" (click)="auth.logout()" routerLink="/login">{{ 'Log out' | translate }}</button>
     </div>
   </aside>
 
   <main class="workspace">
     <header class="topbar">
       <div>
-        <p>Command Center</p>
-        <h2>Track. Analyze. Progress.</h2>
-      </div>
-
-      <div class="topbar-actions">
-        <button type="button" class="icon-button" aria-label="Notifications">N</button>
-        <button type="button" class="icon-button" aria-label="Calendar">C</button>
-        <button type="button" class="primary-button" routerLink="/workout-sessions">
-          New Workout Session
-        </button>
+        <p>{{ 'Command Center' | translate }}</p>
+        <h2>{{ 'Track. Analyze. Progress.' | translate }}</h2>
       </div>
     </header>
 

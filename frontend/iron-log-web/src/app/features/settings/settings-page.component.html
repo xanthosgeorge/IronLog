@@ -1,0 +1,41 @@
+<section class="settings-page">
+  <h1>{{ 'Settings' | translate }}</h1>
+  <fieldset>
+    <legend>{{ 'Profile photo' | translate }}</legend>
+    <div class="profile-photo-row" [attr.aria-busy]="isUploading()">
+      <div class="photo-preview">
+        @if (avatar.photo()) { <img [src]="avatar.photo()" [alt]="'Profile photo' | translate" /> }
+        @else { <span aria-hidden="true">{{ avatar.initials() }}</span> }
+      </div>
+      <div class="photo-controls">
+        <input #photoInput type="file" hidden accept="image/jpeg,image/png,image/webp" (change)="uploadPhoto($event)" [disabled]="isUploading()" />
+        <button type="button" class="btn btn-primary" (click)="photoInput.click()" [disabled]="isUploading()">
+          {{ (isUploading() ? 'Saving...' : avatar.photo() ? 'Change photo' : 'Add photo') | translate }}
+        </button>
+        @if (avatar.photo()) {
+          <button type="button" class="btn btn-ghost" (click)="removePhoto()" [disabled]="isUploading()">{{ 'Remove photo' | translate }}</button>
+        }
+      </div>
+    </div>
+    @if (avatarError()) { <p class="photo-error" role="alert">{{ avatarError() | translate }}</p> }
+  </fieldset>
+  <fieldset>
+    <legend>{{ 'Language' | translate }}</legend>
+    <div class="language-options">
+      <label><input type="radio" name="language" value="en" [checked]="preferences.language() === 'en'" (change)="preferences.setLanguage('en')" /> English</label>
+      <label><input type="radio" name="language" value="el" [checked]="preferences.language() === 'el'" (change)="preferences.setLanguage('el')" /> Ελληνικά</label>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>{{ 'Appearance' | translate }}</legend>
+    <div class="theme-options">
+      @for (theme of themes; track theme.id) {
+        <label class="theme-option" [class.selected]="preferences.theme() === theme.id">
+          <input type="radio" name="theme" [value]="theme.id" [checked]="preferences.theme() === theme.id" (change)="preferences.setTheme(theme.id)" />
+          <span class="swatch" [style.--swatch-color]="theme.color" aria-hidden="true"></span>
+          <span>{{ theme.label | translate }}</span>
+        </label>
+      }
+    </div>
+  </fieldset>
+</section>

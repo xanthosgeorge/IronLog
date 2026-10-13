@@ -1,14 +1,30 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ExercisesPageComponent } from './exercises-page.component';
+import { of, Subject } from 'rxjs';
+import { ExerciseService } from '../../services/exercise.service';
+import { MuscleGroupService } from '../../../muscle-groups/services/muscle-group.service';
+import { Exercise } from '../../models/exercise.model';
 
 describe('ExercisesPageComponent', () => {
   let component: ExercisesPageComponent;
   let fixture: ComponentFixture<ExercisesPageComponent>;
+  let exerciseService: jasmine.SpyObj<ExerciseService>;
+  let response: Subject<unknown>;
+  const exercise: Exercise = { id: 'bench', name: 'Bench Press', muscleGroupId: 'chest', muscleGroupName: 'Chest', isActive: true };
 
   beforeEach(async () => {
+    exerciseService = jasmine.createSpyObj('ExerciseService', ['getAll', 'create', 'update']);
+    response = new Subject();
+    exerciseService.getAll.and.returnValue(of([exercise]));
+    exerciseService.create.and.returnValue(response as Subject<Exercise>);
+    exerciseService.update.and.returnValue(response as Subject<void>);
     await TestBed.configureTestingModule({
-      imports: [ExercisesPageComponent]
+      imports: [ExercisesPageComponent],
+      providers: [
+        { provide: ExerciseService, useValue: exerciseService },
+        { provide: MuscleGroupService, useValue: { getAll: () => of([{ id: 'chest', name: 'Chest' }]) } }
+      ]
     })
     .compileComponents();
 
@@ -17,7 +33,81 @@ describe('ExercisesPageComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  afterEach(() => fixture.destroy());
+
+  it('keeps the form closed until Create Exercise is clicked', () => {
+    expect(component.dialog.nativeElement.open).toBeFalse();
+    (fixture.nativeElement.querySelector('.page-header button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(component.dialog.nativeElement.open).toBeTrue();
+    expect(component.form.name).toBe('');
+    expect(component.form.muscleGroupId).toBe('chest');
+    expect(document.activeElement).toBe(component.dialog.nativeElement.querySelector('input[name="name"]'));
+  });
+
+  it('closes only after creation succeeds and refreshes the list', () => {
+    component.openCreateDialog();
+    component.form.name = 'New exercise';
+    component.save();
+    expect(component.dialog.nativeElement.open).toBeTrue();
+    expect(component.isSaving).toBeTrue();
+    component.save();
+    expect(exerciseService.create).toHaveBeenCalledTimes(1);
+    response.next(exercise);
+    expect(component.dialog.nativeElement.open).toBeFalse();
+    expect(component.isSaving).toBeFalse();
+    expect(exerciseService.getAll).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps entered values visible when saving fails', () => {
+    component.openCreateDialog();
+    component.form.name = 'New exercise';
+    component.save();
+    response.error(new Error('offline'));
+    expect(component.dialog.nativeElement.open).toBeTrue();
+    expect(component.form.name).toBe('New exercise');
+    expect(component.isSaving).toBeFalse();
+    expect(component.errorMessage).toBeTruthy();
+  });
+
+  it('opens existing exercise details in the same dialog and updates on save', () => {
+    component.edit(exercise);
+    expect(component.dialog.nativeElement.open).toBeTrue();
+    expect(component.form.name).toBe(exercise.name);
+    component.save();
+    expect(exerciseService.update).toHaveBeenCalledWith('bench', jasmine.objectContaining({ name: 'Bench Press' }));
+    response.next(undefined);
+    expect(component.dialog.nativeElement.open).toBeFalse();
+  });
+
+  it('allows cancellation without saving and resets the form when reopened', () => {
+    component.openCreateDialog();
+    component.form.name = 'Unsaved exercise';
+    component.closeDialog();
+    expect(component.dialog.nativeElement.open).toBeFalse();
+    component.openCreateDialog();
+    expect(component.form.name).toBe('');
+    expect(exerciseService.create).not.toHaveBeenCalled();
+  });
+
+  it('prevents dismissing or changing the dialog while saving', () => {
+    component.openCreateDialog();
+    component.form.name = 'New exercise';
+    component.save();
+    fixture.detectChanges();
+    component.closeDialog();
+    const event = new Event('cancel', { cancelable: true });
+    component.dialog.nativeElement.dispatchEvent(event);
+    expect(component.dialog.nativeElement.open).toBeTrue();
+    expect(event.defaultPrevented).toBeTrue();
+    expect((component.dialog.nativeElement.querySelector('fieldset') as HTMLFieldSetElement).disabled).toBeTrue();
+  });
+
+  it('keeps the dialog open when validation fails', () => {
+    component.openCreateDialog();
+    component.save();
+    expect(component.dialog.nativeElement.open).toBeTrue();
+    expect(exerciseService.create).not.toHaveBeenCalled();
+    expect(component.errorMessage).toBeTruthy();
   });
 });

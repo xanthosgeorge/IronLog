@@ -1,65 +1,69 @@
 <section class="page-header">
   <div>
-    <h1>Muscle Groups</h1>
-    <p>Manage the primary training categories used across your exercise library.</p>
+    <h1>{{ 'Muscle Groups' | translate }}</h1>
+    <p>{{ 'Manage the primary training categories used across your exercise library.' | translate }}</p>
   </div>
+  <button type="button" class="btn btn-primary" (click)="openCreateDialog()">{{ 'Create Muscle Group' | translate }}</button>
 </section>
 
-<section class="management-grid">
-  <form class="card editor-card" (ngSubmit)="save()">
+<dialog #muscleGroupDialog class="muscle-group-dialog" aria-labelledby="muscle-group-dialog-title" (close)="onDialogClose()" (cancel)="onDialogCancel($event)">
+  <form (ngSubmit)="save()">
     <div class="section-title">
-      <h2>{{ editingId ? 'Edit Muscle Group' : 'Create Muscle Group' }}</h2>
-      <p>{{ editingId ? 'Update the selected category.' : 'Add a new category for exercise organization.' }}</p>
+      <h2 id="muscle-group-dialog-title">{{ (editingId ? 'Edit Muscle Group' : 'Create Muscle Group') | translate }}</h2>
     </div>
 
-    <div class="form-grid single-column">
+    <fieldset class="form-grid single-column" [disabled]="isSaving">
       <label class="form-field">
-        <span>Name</span>
-        <input name="name" [(ngModel)]="form.name" placeholder="Chest" required />
+        <span>{{ 'Name' | translate }}</span>
+        <input name="name" [(ngModel)]="form.name" [placeholder]="'Chest' | translate" required autofocus />
       </label>
 
       <label class="form-field">
-        <span>Description</span>
-        <textarea name="description" [(ngModel)]="form.description" placeholder="Primary pushing muscles and related movements"></textarea>
+        <span>{{ 'Description' | translate }}</span>
+        <textarea name="description" [(ngModel)]="form.description" [placeholder]="'Primary pushing muscles and related movements' | translate"></textarea>
       </label>
-    </div>
+    </fieldset>
 
     @if (errorMessage) {
-      <p class="error-state compact">{{ errorMessage }}</p>
+      <p class="error-state compact" role="alert">{{ errorMessage | translate }}</p>
     }
 
     <div class="form-actions">
-      @if (editingId) {
-        <button type="button" class="btn btn-ghost" (click)="resetForm()">Cancel</button>
-      }
+      <button type="button" class="btn btn-ghost" (click)="closeDialog()" [disabled]="isSaving">{{ 'Cancel' | translate }}</button>
       <button type="submit" class="btn btn-primary" [disabled]="isSaving">
-        {{ isSaving ? 'Saving...' : editingId ? 'Save Changes' : 'Create Group' }}
+        {{ (isSaving ? 'Saving...' : 'Save') | translate }}
       </button>
     </div>
   </form>
+</dialog>
 
-  <div class="card table-card">
+<section class="table-card">
     <div class="section-title table-title">
       <div>
-        <h2>All Muscle Groups</h2>
-        <p>{{ muscleGroups.length }} categories configured</p>
+        <h2>{{ 'All Muscle Groups' | translate }}</h2>
+        <p>{{ muscleGroups.length }} {{ 'categories configured' | translate }}</p>
       </div>
-      <button type="button" class="btn btn-ghost" (click)="loadMuscleGroups()">Refresh</button>
+      <button type="button" class="btn btn-ghost" (click)="loadMuscleGroups()">{{ 'Refresh' | translate }}</button>
     </div>
 
+    @if (errorMessage && !muscleGroupDialog.open) {
+      <p class="error-state compact" role="alert">{{ errorMessage | translate }}</p>
+    }
+
     @if (isLoading) {
-      <div class="empty-state">Loading muscle groups...</div>
+      <div class="empty-state">{{ 'Loading muscle groups...' | translate }}</div>
     }
     @if (!isLoading && muscleGroups.length === 0) {
-      <div class="empty-state">No muscle groups yet.</div>
+      <div class="empty-state">{{ 'No muscle groups yet.' | translate }}</div>
     }
 
     @if (!isLoading && muscleGroups.length > 0) {
+      <div class="table-scroll">
       <table class="data-table">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Description</th>
+            <th>{{ 'Name' | translate }}</th>
+            <th>{{ 'Description' | translate }}</th>
             <th></th>
           </tr>
         </thead>
@@ -67,17 +71,17 @@
           @for (group of muscleGroups; track group) {
             <tr>
               <td><strong>{{ group.name }}</strong></td>
-              <td>{{ group.description || 'No description' }}</td>
+              <td>{{ group.description || ('No description' | translate) }}</td>
               <td>
                 <div class="table-actions">
-                  <button type="button" class="btn btn-ghost" (click)="edit(group)">Edit</button>
-                  <button type="button" class="btn btn-danger" (click)="delete(group)">Delete</button>
+                  <button type="button" class="btn btn-ghost" (click)="edit(group)">{{ 'Edit' | translate }}</button>
+                  <button type="button" class="btn btn-danger" (click)="delete(group)">{{ 'Delete' | translate }}</button>
                 </div>
               </td>
             </tr>
           }
         </tbody>
       </table>
+      </div>
     }
-  </div>
 </section>

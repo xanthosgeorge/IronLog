@@ -147,8 +147,10 @@ with that user's email:
 Get-Content -Raw database/seed-mock-workouts.sql | docker exec -i ironlog-postgres psql -U ironlog -d ironlog_db -v user_email=your-email@example.com
 ```
 
-This adds Upper A/B and Lower A/B on October 5, 6, 9, and 10, 2026, with five
-exercises and three sets per workout, weights, reps, RPE, and calculated total loads.
+This adds 16 Upper A/B and Lower A/B workouts from September 14 to October 10,
+2026, with five exercises and three sets per workout, weights, reps, RPE, and
+calculated total loads. Earlier weeks use progressively lighter weights and fewer
+repetitions so the dashboard can show progressive overload across four weeks.
 It reuses existing catalog entries and skips mock workouts already present for the
 selected user. The entire seed runs in one transaction and requires an existing
 account. Database schema migrations remain in `backend/IronLog.Persistence/Migrations`;

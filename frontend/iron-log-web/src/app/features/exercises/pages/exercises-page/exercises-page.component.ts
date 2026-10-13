@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { PreferencesService } from '../../../../core/preferences/preferences.service';
+import { TranslatePipe } from '../../../../core/preferences/translate.pipe';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -9,11 +11,13 @@ import { MuscleGroupService } from '../../../muscle-groups/services/muscle-group
 
 @Component({
   selector: 'app-exercises-page',
-  imports: [FormsModule],
+  imports: [TranslatePipe, FormsModule],
   templateUrl: './exercises-page.component.html',
   styleUrl: './exercises-page.component.scss'
 })
 export class ExercisesPageComponent implements OnInit {
+  @ViewChild('exerciseDialog', { static: true }) dialog!: ElementRef<HTMLDialogElement>;
+  readonly preferences = inject(PreferencesService);
   exercises: Exercise[] = [];
   muscleGroups: MuscleGroup[] = [];
   form: ExercisePayload = this.createEmptyForm();
@@ -60,6 +64,7 @@ export class ExercisesPageComponent implements OnInit {
   }
 
   save(): void {
+    if (this.isSaving) return;
     if (!this.form.name.trim() || !this.form.muscleGroupId) {
       this.errorMessage = 'Exercise name and muscle group are required.';
       return;
@@ -81,8 +86,8 @@ export class ExercisesPageComponent implements OnInit {
 
     request.subscribe({
       next: () => {
-        this.resetForm();
         this.isSaving = false;
+        this.closeDialog();
         this.loadPageData();
       },
       error: () => {
@@ -93,6 +98,7 @@ export class ExercisesPageComponent implements OnInit {
   }
 
   edit(item: Exercise): void {
+    this.errorMessage = '';
     this.editingId = item.id;
     this.form = {
       muscleGroupId: item.muscleGroupId,
@@ -100,10 +106,30 @@ export class ExercisesPageComponent implements OnInit {
       equipmentType: item.equipmentType ?? '',
       isActive: item.isActive
     };
+    this.dialog.nativeElement.showModal();
+  }
+
+  openCreateDialog(): void {
+    this.resetForm();
+    this.errorMessage = '';
+    this.dialog.nativeElement.showModal();
+  }
+
+  closeDialog(): void {
+    if (!this.isSaving) this.dialog.nativeElement.close();
+  }
+
+  onDialogClose(): void {
+    this.resetForm();
+    this.errorMessage = '';
+  }
+
+  onDialogCancel(event: Event): void {
+    if (this.isSaving) event.preventDefault();
   }
 
   delete(item: Exercise): void {
-    if (!confirm(`Delete ${item.name}?`)) {
+    if (!confirm(this.preferences.translate('Delete {name}?', { name: item.name }))) {
       return;
     }
 
@@ -124,7 +150,7 @@ export class ExercisesPageComponent implements OnInit {
   getMuscleGroupName(exercise: Exercise): string {
     return exercise.muscleGroupName
       || this.muscleGroups.find((group) => group.id === exercise.muscleGroupId)?.name
-      || 'Unassigned';
+      || this.preferences.translate('Unassigned');
   }
 
   private createEmptyForm(muscleGroupId = ''): ExercisePayload {

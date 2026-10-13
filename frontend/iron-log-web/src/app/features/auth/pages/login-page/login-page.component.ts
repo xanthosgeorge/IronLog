@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../core/preferences/translate.pipe';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,7 +7,7 @@ import { LoginRequest, RegisterRequest } from '../../../../core/auth/auth.models
 
 @Component({
   selector: 'app-login-page',
-  imports: [FormsModule],
+  imports: [TranslatePipe, FormsModule],
   templateUrl: './login-page.component.html',
   styleUrl: './login-page.component.scss'
 })

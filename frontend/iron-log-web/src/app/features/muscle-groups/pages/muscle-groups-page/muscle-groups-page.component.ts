@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { PreferencesService } from '../../../../core/preferences/preferences.service';
+import { TranslatePipe } from '../../../../core/preferences/translate.pipe';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -7,11 +9,13 @@ import { MuscleGroupService } from '../../services/muscle-group.service';
 
 @Component({
   selector: 'app-muscle-groups-page',
-  imports: [FormsModule],
+  imports: [TranslatePipe, FormsModule],
   templateUrl: './muscle-groups-page.component.html',
   styleUrl: './muscle-groups-page.component.scss'
 })
 export class MuscleGroupsPageComponent implements OnInit {
+  @ViewChild('muscleGroupDialog', { static: true }) dialog!: ElementRef<HTMLDialogElement>;
+  readonly preferences = inject(PreferencesService);
   muscleGroups: MuscleGroup[] = [];
   form: MuscleGroupPayload = this.createEmptyForm();
   editingId: string | null = null;
@@ -42,6 +46,7 @@ export class MuscleGroupsPageComponent implements OnInit {
   }
 
   save(): void {
+    if (this.isSaving) return;
     if (!this.form.name.trim()) {
       this.errorMessage = 'Name is required.';
       return;
@@ -61,8 +66,8 @@ export class MuscleGroupsPageComponent implements OnInit {
 
     request.subscribe({
       next: () => {
-        this.resetForm();
         this.isSaving = false;
+        this.closeDialog();
         this.loadMuscleGroups();
       },
       error: () => {
@@ -73,15 +78,36 @@ export class MuscleGroupsPageComponent implements OnInit {
   }
 
   edit(item: MuscleGroup): void {
+    this.errorMessage = '';
     this.editingId = item.id;
     this.form = {
       name: item.name,
       description: item.description ?? ''
     };
+    this.dialog.nativeElement.showModal();
+  }
+
+  openCreateDialog(): void {
+    this.resetForm();
+    this.errorMessage = '';
+    this.dialog.nativeElement.showModal();
+  }
+
+  closeDialog(): void {
+    if (!this.isSaving) this.dialog.nativeElement.close();
+  }
+
+  onDialogClose(): void {
+    this.resetForm();
+    this.errorMessage = '';
+  }
+
+  onDialogCancel(event: Event): void {
+    if (this.isSaving) event.preventDefault();
   }
 
   delete(item: MuscleGroup): void {
-    if (!confirm(`Delete ${item.name}?`)) {
+    if (!confirm(this.preferences.translate('Delete {name}?', { name: item.name }))) {
       return;
     }
 

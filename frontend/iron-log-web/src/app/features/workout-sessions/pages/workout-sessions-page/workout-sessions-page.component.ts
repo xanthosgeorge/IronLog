@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { PreferencesService } from '../../../../core/preferences/preferences.service';
+import { TranslatePipe, LocalDatePipe, LocalNumberPipe } from '../../../../core/preferences/translate.pipe';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Exercise } from '../../../exercises/models/exercise.model';
 import { ExerciseService } from '../../../exercises/services/exercise.service';
@@ -36,11 +37,14 @@ interface WorkoutSessionForm {
 
 @Component({
   selector: 'app-workout-sessions-page',
-  imports: [DatePipe, DecimalPipe, FormsModule],
+  imports: [TranslatePipe, LocalDatePipe, LocalNumberPipe, FormsModule],
   templateUrl: './workout-sessions-page.component.html',
   styleUrl: './workout-sessions-page.component.scss'
 })
 export class WorkoutSessionsPageComponent implements OnInit {
+  @ViewChild('workoutDialog', { static: true }) dialog!: ElementRef<HTMLDialogElement>;
+  @ViewChild('detailsDialog', { static: true }) detailsDialog!: ElementRef<HTMLDialogElement>;
+  readonly preferences = inject(PreferencesService);
   sessions: WorkoutSession[] = [];
   exercises: Exercise[] = [];
   selectedSession: WorkoutSession | null = null;
@@ -86,6 +90,7 @@ export class WorkoutSessionsPageComponent implements OnInit {
   }
 
   save(): void {
+    if (this.isSaving) return;
     this.errorMessage = '';
     this.successMessage = '';
 
@@ -111,7 +116,7 @@ export class WorkoutSessionsPageComponent implements OnInit {
       next: () => {
         this.successMessage = 'Workout session created.';
         this.isSaving = false;
-        this.resetForm();
+        this.closeDialog();
         this.loadPageData();
       },
       error: () => {
@@ -122,9 +127,11 @@ export class WorkoutSessionsPageComponent implements OnInit {
   }
 
   viewDetails(session: WorkoutSession): void {
+    this.errorMessage = '';
     this.workoutSessionService.getById(session.id).subscribe({
       next: (details) => {
         this.selectedSession = details;
+        if (!this.detailsDialog.nativeElement.open) this.detailsDialog.nativeElement.showModal();
       },
       error: () => {
         this.errorMessage = 'Could not load workout session details.';
@@ -133,7 +140,7 @@ export class WorkoutSessionsPageComponent implements OnInit {
   }
 
   delete(session: WorkoutSession): void {
-    if (!confirm(`Delete ${session.title}?`)) {
+    if (!confirm(this.preferences.translate('Delete {name}?', { name: session.title }))) {
       return;
     }
 
@@ -177,8 +184,28 @@ export class WorkoutSessionsPageComponent implements OnInit {
     this.ensureDefaultExerciseSelected();
   }
 
+  openCreateDialog(): void {
+    this.resetForm();
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.dialog.nativeElement.showModal();
+  }
+
+  closeDialog(): void {
+    if (!this.isSaving) this.dialog.nativeElement.close();
+  }
+
+  onDialogClose(): void {
+    this.resetForm();
+    this.errorMessage = '';
+  }
+
+  onDialogCancel(event: Event): void {
+    if (this.isSaving) event.preventDefault();
+  }
+
   getExerciseName(exerciseId: string): string {
-    return this.exercises.find((exercise) => exercise.id === exerciseId)?.name ?? 'Select exercise';
+    return this.exercises.find((exercise) => exercise.id === exerciseId)?.name ?? this.preferences.translate('Select exercise');
   }
 
   private toPayload(): CreateWorkoutSessionRequest {

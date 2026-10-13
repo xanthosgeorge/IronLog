@@ -1,52 +1,52 @@
 <section class="page-header">
   <div>
-    <h1>Workout Sessions</h1>
-    <p>Register complete training sessions with exercises, sets, load, reps and RPE.</p>
+    <h1>{{ 'Workout Sessions' | translate }}</h1>
+    <p>{{ 'Register complete training sessions with exercises, sets, load, reps and RPE.' | translate }}</p>
   </div>
 
-  <button type="button" class="btn btn-ghost" (click)="loadPageData()">Refresh</button>
+  <button type="button" class="btn btn-primary" (click)="openCreateDialog()">{{ 'New Workout Session' | translate }}</button>
 </section>
 
-<section class="workout-layout">
-  <form class="card session-form" (ngSubmit)="save()">
+<dialog #workoutDialog class="workout-dialog" aria-labelledby="workout-dialog-title" (close)="onDialogClose()" (cancel)="onDialogCancel($event)">
+  <form class="session-form" (ngSubmit)="save()">
     <div class="section-title">
-      <h2>New Workout Session</h2>
-      <p>Create a session and log each exercise set in one pass.</p>
+      <h2 id="workout-dialog-title">{{ 'New Workout Session' | translate }}</h2>
     </div>
 
+    <fieldset class="session-fields" [disabled]="isSaving">
     <div class="form-grid">
       <label class="form-field">
-        <span>Title</span>
-        <input name="title" [(ngModel)]="form.title" placeholder="Upper A" required />
+        <span>{{ 'Title' | translate }}</span>
+        <input name="title" [(ngModel)]="form.title" [placeholder]="'Upper A' | translate" required autofocus />
       </label>
 
       <label class="form-field">
-        <span>Session Date</span>
+        <span>{{ 'Session Date' | translate }}</span>
         <input type="date" name="sessionDate" [(ngModel)]="form.sessionDate" required />
       </label>
 
       <label class="form-field">
-        <span>Duration Minutes</span>
+        <span>{{ 'Duration Minutes' | translate }}</span>
         <input type="number" name="durationMinutes" [(ngModel)]="form.durationMinutes" placeholder="70" min="0" />
       </label>
 
       <label class="form-field notes-field">
-        <span>Notes</span>
-        <textarea name="notes" [(ngModel)]="form.notes" placeholder="Energy, sleep, injuries, focus notes"></textarea>
+        <span>{{ 'Notes' | translate }}</span>
+        <textarea name="notes" [(ngModel)]="form.notes" [placeholder]="'Energy, sleep, injuries, focus notes' | translate"></textarea>
       </label>
     </div>
 
     <div class="section-title exercise-title">
       <div>
-        <h2>Exercises</h2>
-        <p>{{ form.exercises.length }} movements in this session</p>
+        <h2>{{ 'Exercises' | translate }}</h2>
+        <p>{{ form.exercises.length }} {{ 'movements in this session' | translate }}</p>
       </div>
-      <button type="button" class="btn btn-primary" (click)="addExercise()" [disabled]="exercises.length === 0">Add Exercise</button>
+      <button type="button" class="btn btn-primary" (click)="addExercise()" [disabled]="exercises.length === 0">{{ 'Add Exercise' | translate }}</button>
     </div>
 
     @if (exercises.length === 0) {
       <div class="empty-state compact">
-        Add exercises first before creating a workout session.
+        {{ 'Add exercises first before creating a workout session.' | translate }}
       </div>
     }
 
@@ -54,20 +54,20 @@
       <article class="exercise-card">
         <div class="exercise-header">
           <div>
-            <strong>Exercise {{ exerciseIndex + 1 }}</strong>
+            <strong>{{ 'Exercise' | translate }} {{ exerciseIndex + 1 }}</strong>
             <span>{{ getExerciseName(workoutExercise.exerciseId) }}</span>
           </div>
           @if (form.exercises.length > 1) {
             <button type="button" class="btn btn-danger" (click)="removeExercise(exerciseIndex)">
-              Remove
+              {{ 'Remove' | translate }}
             </button>
           }
         </div>
         <div class="form-grid exercise-fields">
           <label class="form-field">
-            <span>Exercise</span>
+            <span>{{ 'Exercise' | translate }}</span>
             <select [name]="'exerciseId-' + exerciseIndex" [(ngModel)]="workoutExercise.exerciseId" required>
-              <option value="" disabled>Select exercise</option>
+              <option value="" disabled>{{ 'Select exercise' | translate }}</option>
               @for (exercise of exercises; track exercise) {
                 <option [value]="exercise.id">
                   {{ exercise.name }} · {{ exercise.muscleGroupName }}
@@ -76,128 +76,131 @@
             </select>
           </label>
           <label class="form-field">
-            <span>Exercise Notes</span>
-            <input [name]="'exerciseNotes-' + exerciseIndex" [(ngModel)]="workoutExercise.notes" placeholder="Tempo, grip, machine setting" />
+            <span>{{ 'Exercise Notes' | translate }}</span>
+            <input [name]="'exerciseNotes-' + exerciseIndex" [(ngModel)]="workoutExercise.notes" [placeholder]="'Tempo, grip, machine setting' | translate" />
           </label>
         </div>
         <div class="sets-header">
-          <span>Sets</span>
-          <button type="button" class="btn btn-ghost" (click)="addSet(workoutExercise)">Add Set</button>
+          <span>{{ 'Sets' | translate }}</span>
+          <button type="button" class="btn btn-ghost" (click)="addSet(workoutExercise)">{{ 'Add Set' | translate }}</button>
         </div>
+        <div class="sets-table">
         <div class="set-row set-heading">
           <span>#</span>
-          <span>Weight</span>
-          <span>Reps</span>
+          <span>{{ 'Weight' | translate }}</span>
+          <span>{{ 'Reps' | translate }}</span>
           <span>RPE</span>
-          <span>Warmup</span>
-          <span>Note</span>
+          <span>{{ 'Warmup' | translate }}</span>
+          <span>{{ 'Note' | translate }}</span>
           <span></span>
         </div>
         @for (set of workoutExercise.sets; track set; let setIndex = $index) {
           <div class="set-row">
             <strong>{{ setIndex + 1 }}</strong>
-            <input type="number" [name]="'weight-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.weight" placeholder="80" min="0" step="0.5" />
-            <input type="number" [name]="'reps-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.reps" placeholder="8" min="0" required />
-            <input type="number" [name]="'rpe-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.rpe" placeholder="8" min="1" max="10" />
+            <input type="number" [attr.aria-label]="'Weight' | translate" [name]="'weight-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.weight" placeholder="80" min="0" step="0.5" />
+            <input type="number" [attr.aria-label]="'Reps' | translate" [name]="'reps-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.reps" placeholder="8" min="1" required />
+            <input type="number" aria-label="RPE" [name]="'rpe-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.rpe" placeholder="8" min="1" max="10" />
             <label class="warmup-toggle">
               <input type="checkbox" [name]="'warmup-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.isWarmup" />
-              <span>Warmup</span>
+              <span>{{ 'Warmup' | translate }}</span>
             </label>
-            <input [name]="'note-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.resistanceNote" placeholder="Band, tempo, assistance" />
+            <input [attr.aria-label]="'Note' | translate" [name]="'note-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.resistanceNote" [placeholder]="'Band, tempo, assistance' | translate" />
             @if (workoutExercise.sets.length > 1) {
               <button type="button" class="btn btn-danger" (click)="removeSet(workoutExercise, setIndex)">
-                Delete
+                {{ 'Delete' | translate }}
               </button>
             }
           </div>
         }
+        </div>
       </article>
     }
 
     @if (errorMessage) {
-      <p class="error-state compact">{{ errorMessage }}</p>
+      <p class="error-state compact" role="alert">{{ errorMessage | translate }}</p>
     }
-    @if (successMessage) {
-      <p class="success-state compact">{{ successMessage }}</p>
-    }
+    </fieldset>
 
     <div class="form-actions">
-      <button type="button" class="btn btn-ghost" (click)="resetForm()">Reset</button>
+      <button type="button" class="btn btn-ghost" (click)="closeDialog()" [disabled]="isSaving">{{ 'Cancel' | translate }}</button>
+      <button type="button" class="btn btn-ghost" (click)="resetForm()" [disabled]="isSaving">{{ 'Reset' | translate }}</button>
       <button type="submit" class="btn btn-primary" [disabled]="isSaving || exercises.length === 0">
-        {{ isSaving ? 'Saving...' : 'Create Workout Session' }}
+        {{ (isSaving ? 'Saving...' : 'Save') | translate }}
       </button>
     </div>
   </form>
+</dialog>
 
-  <aside class="session-side">
-    <div class="card list-card">
-      <div class="section-title table-title">
-        <div>
-          <h2>Recent Sessions</h2>
-          <p>{{ sessions.length }} logged sessions</p>
-        </div>
-      </div>
-
-      @if (isLoading) {
-        <div class="empty-state">Loading sessions...</div>
-      }
-      @if (!isLoading && sessions.length === 0) {
-        <div class="empty-state">No workout sessions yet.</div>
-      }
-
-      @if (!isLoading && sessions.length > 0) {
-        <div class="session-list">
-          @for (session of sessions; track session) {
-            <article class="session-row">
-              <div>
-                <strong>{{ session.title }}</strong>
-                <span>{{ session.sessionDate | date: 'mediumDate' }}</span>
-              </div>
-              <div class="session-meta">
-                <span>{{ session.durationMinutes || 0 }} min</span>
-                <span>{{ session.totalVolume || 0 | number: '1.0-0' }} kg</span>
-              </div>
-              <div class="table-actions">
-                <button type="button" class="btn btn-ghost" (click)="viewDetails(session)">View</button>
-                <button type="button" class="btn btn-danger" (click)="delete(session)">Delete</button>
-              </div>
-            </article>
-          }
-        </div>
-      }
+<section class="list-section">
+  <div class="section-title table-title">
+    <div>
+      <h2>{{ 'Workout Sessions' | translate }}</h2>
+      <p>{{ sessions.length }} {{ 'logged sessions' | translate }}</p>
     </div>
-
-    @if (selectedSession) {
-      <div class="card details-card">
-        <div class="section-title">
-          <h2>{{ selectedSession.title }}</h2>
-          <p>{{ selectedSession.sessionDate | date: 'fullDate' }}</p>
-        </div>
-        <div class="details-metrics">
-          <div>
-            <span>Duration</span>
-            <strong>{{ selectedSession.durationMinutes || 0 }} min</strong>
-          </div>
-          <div>
-            <span>Volume</span>
-            <strong>{{ selectedSession.totalVolume || 0 | number: '1.0-0' }} kg</strong>
-          </div>
-        </div>
-        @for (exercise of selectedSession.exercises; track exercise) {
-          <article class="detail-exercise">
-            <strong>{{ exercise.exerciseName }}</strong>
-            <span>{{ exercise.sets.length }} sets</span>
-            @for (set of exercise.sets; track set) {
-              <div class="detail-set">
-                <span>#{{ set.setNumber }}</span>
-                <span>{{ set.weight || 0 }}kg</span>
-                <span>{{ set.reps }} reps</span>
-                <span>RPE {{ set.rpe || '-' }}</span>
-              </div>
-            }
-          </article>
-        }
-      </div>
-    }
-  </aside>
+    <button type="button" class="btn btn-ghost" (click)="loadPageData()">{{ 'Refresh' | translate }}</button>
+  </div>
+  @if (errorMessage && !workoutDialog.open) {
+    <p class="error-state compact" role="alert">{{ errorMessage | translate }}</p>
+  }
+  @if (successMessage) { <p class="success-state compact" role="status">{{ successMessage | translate }}</p> }
+  @if (isLoading) { <div class="empty-state">{{ 'Loading sessions...' | translate }}</div> }
+  @else if (!sessions.length) { <div class="empty-state">{{ 'No workout sessions yet.' | translate }}</div> }
+  @else {
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr>
+          <th>{{ 'Title' | translate }}</th>
+          <th>{{ 'Date' | translate }}</th>
+          <th>{{ 'Duration' | translate }}</th>
+          <th>{{ 'Volume' | translate }}</th>
+          <th></th>
+        </tr></thead>
+        <tbody>
+          @for (session of sessions; track session.id) {
+            <tr>
+              <td><strong>{{ session.title }}</strong></td>
+              <td>{{ session.sessionDate | date:'mediumDate' }}</td>
+              <td>{{ session.durationMinutes || 0 }} {{ 'min' | translate }}</td>
+              <td>{{ session.totalVolume || 0 | number:'1.0-0' }} kg</td>
+              <td><div class="table-actions">
+                <button type="button" class="btn btn-ghost" (click)="viewDetails(session)">{{ 'View' | translate }}</button>
+                <button type="button" class="btn btn-danger" (click)="delete(session)">{{ 'Delete' | translate }}</button>
+              </div></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
 </section>
+
+<dialog #detailsDialog class="details-dialog" aria-labelledby="session-details-title" (close)="selectedSession = null">
+  @if (selectedSession) {
+    <div class="section-title">
+      <h2 id="session-details-title">{{ selectedSession.title }}</h2>
+      <p>{{ selectedSession.sessionDate | date:'fullDate' }}</p>
+    </div>
+    <div class="details-metrics">
+      <div><span>{{ 'Duration' | translate }}</span><strong>{{ selectedSession.durationMinutes || 0 }} {{ 'min' | translate }}</strong></div>
+      <div><span>{{ 'Volume' | translate }}</span><strong>{{ selectedSession.totalVolume || 0 | number:'1.0-0' }} kg</strong></div>
+    </div>
+    @if (selectedSession.notes) { <p class="detail-notes">{{ selectedSession.notes }}</p> }
+    @for (exercise of selectedSession.exercises; track exercise.id) {
+      <article class="detail-exercise">
+        <strong>{{ exercise.exerciseName }}</strong>
+        <span>{{ exercise.sets.length }} {{ 'sets' | translate }}</span>
+        @for (set of exercise.sets; track set.id) {
+          <div class="detail-set">
+            <span>#{{ set.setNumber }}</span>
+            <span>{{ set.weight || 0 | number:'1.0-2' }} kg</span>
+            <span>{{ set.reps }} {{ 'reps' | translate }}</span>
+            <span>RPE {{ set.rpe || '-' }} @if (set.isWarmup) { &middot; {{ 'Warmup' | translate }} }</span>
+          </div>
+        }
+      </article>
+    }
+  }
+  <div class="form-actions">
+    <button type="button" class="btn btn-ghost" (click)="detailsDialog.close()" autofocus>{{ 'Close' | translate }}</button>
+  </div>
+</dialog>
