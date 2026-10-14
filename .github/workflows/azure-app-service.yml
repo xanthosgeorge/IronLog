@@ -1,0 +1,71 @@
+name: Build and deploy IronLog to Azure
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: azure-ironlog-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/iron-log-web/package-lock.json
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build Angular
+        working-directory: frontend/iron-log-web
+        run: |
+          npm ci
+          npm run build -- --configuration production
+      - name: Test backend
+        run: dotnet test IronLog.slnx --configuration Release
+      - name: Package API and frontend
+        run: |
+          dotnet publish backend/IronLog.Api/IronLog.Api.csproj --configuration Release --output publish
+          mkdir -p publish/wwwroot
+          cp -R frontend/iron-log-web/dist/iron-log-web/browser/. publish/wwwroot/
+          test -f publish/wwwroot/index.html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ironlog-app
+          path: publish/
+          if-no-files-found: error
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ironlog-app
+          path: publish
+      - name: Log in to Azure with OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Deploy combined application
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ironlog-app-george
+          package: publish

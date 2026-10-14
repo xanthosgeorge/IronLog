@@ -158,6 +158,10 @@ the seed contains no account credentials or password hashes.
 
 ## Available API endpoints
 
+For deployment of the frontend and API together on Azure App Service, see
+[deployment/README.md](deployment/README.md).
+
+
 | Resource | Endpoint | Operations |
 | --- | --- | --- |
 | Authentication | `/api/Auth` | Register, login, view authenticated profile |
