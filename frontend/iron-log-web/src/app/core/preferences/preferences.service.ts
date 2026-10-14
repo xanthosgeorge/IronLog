@@ -47,6 +47,11 @@ export class PreferencesService {
     root.style.setProperty('--accent-soft', palette.soft);
     root.style.setProperty('--accent-dark', palette.dark);
     root.style.setProperty('--accent-rgb', palette.rgb);
+    const favicon = this.document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (favicon) {
+      favicon.type = 'image/svg+xml';
+      favicon.href = `favicon-${this.theme()}.svg`;
+    }
   }
 
   private read(): { language: Language; theme: Theme } {
