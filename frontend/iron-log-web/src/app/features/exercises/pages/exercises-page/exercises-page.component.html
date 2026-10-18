@@ -127,10 +127,10 @@
         <tbody>
           @for (exercise of filteredExercises; track exercise.id) {
             <tr>
-              <td><strong>{{ exercise.name }}</strong></td>
-              <td>{{ getMuscleGroupName(exercise) }}</td>
-              <td>{{ exercise.equipmentType || ('Not set' | translate) }}</td>
-              <td>
+              <td [attr.data-label]="'Name' | translate"><strong>{{ exercise.name }}</strong></td>
+              <td [attr.data-label]="'Muscle Group' | translate">{{ getMuscleGroupName(exercise) }}</td>
+              <td [attr.data-label]="'Equipment' | translate">{{ exercise.equipmentType || ('Not set' | translate) }}</td>
+              <td [attr.data-label]="'Status' | translate">
                 <span class="status-pill" [class.is-active]="exercise.isActive">
                   {{ (exercise.isActive ? 'Active' : 'Inactive') | translate }}
                 </span>

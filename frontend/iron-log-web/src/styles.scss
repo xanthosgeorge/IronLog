@@ -209,3 +209,26 @@ button {
 .error-state {
   color: #ff8581;
 }
+
+/* Keep the document as the main scroll surface; long dialogs scroll independently. */
+body:has(dialog[open]) { overflow: hidden; }
+dialog { overscroll-behavior: contain; }
+
+@media (max-width: 700px) {
+  .page-header { flex-wrap: wrap; gap: 16px; }
+  .page-header h1 { font-size: 28px; overflow-wrap: anywhere; }
+  .form-grid { grid-template-columns: minmax(0, 1fr); }
+  .form-field { min-width: 0; }
+  .form-field input, .form-field select, .form-field textarea { min-width: 0; font-size: 16px; }
+  .form-actions, .table-actions { flex-wrap: wrap; }
+  .page-content .table-scroll { overflow: visible; }
+  .page-content .table-scroll .data-table { display: block; min-width: 0; }
+  .page-content .data-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .page-content .data-table tbody { display: grid; gap: 16px; }
+  .page-content .data-table tbody tr { display: block; min-width: 0; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); padding: 8px 14px; }
+  .page-content .data-table td { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 0; overflow-wrap: anywhere; }
+  .page-content .data-table td::before { content: attr(data-label); color: var(--muted); font-size: 12px; flex: 0 0 32%; }
+  .page-content .data-table td:not([data-label]) { justify-content: flex-end; }
+  .page-content .data-table td:not([data-label])::before { content: none; }
+  .page-content .data-table td > * { min-width: 0; }
+}

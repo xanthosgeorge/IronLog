@@ -97,14 +97,14 @@
         @for (set of workoutExercise.sets; track set; let setIndex = $index) {
           <div class="set-row">
             <strong>{{ setIndex + 1 }}</strong>
-            <input type="number" [attr.aria-label]="'Weight' | translate" [name]="'weight-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.weight" placeholder="80" min="0" step="0.5" />
-            <input type="number" [attr.aria-label]="'Reps' | translate" [name]="'reps-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.reps" placeholder="8" min="1" required />
-            <input type="number" aria-label="RPE" [name]="'rpe-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.rpe" placeholder="8" min="1" max="10" />
+            <label class="set-field"><span>{{ 'Weight' | translate }}</span><input type="number" [attr.aria-label]="'Weight' | translate" [name]="'weight-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.weight" placeholder="80" min="0" step="0.5" /></label>
+            <label class="set-field"><span>{{ 'Reps' | translate }}</span><input type="number" [attr.aria-label]="'Reps' | translate" [name]="'reps-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.reps" placeholder="8" min="1" required /></label>
+            <label class="set-field"><span>RPE</span><input type="number" aria-label="RPE" [name]="'rpe-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.rpe" placeholder="8" min="1" max="10" /></label>
             <label class="warmup-toggle">
               <input type="checkbox" [name]="'warmup-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.isWarmup" />
               <span>{{ 'Warmup' | translate }}</span>
             </label>
-            <input [attr.aria-label]="'Note' | translate" [name]="'note-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.resistanceNote" [placeholder]="'Band, tempo, assistance' | translate" />
+            <label class="set-field"><span>{{ 'Note' | translate }}</span><input [attr.aria-label]="'Note' | translate" [name]="'note-' + exerciseIndex + '-' + setIndex" [(ngModel)]="set.resistanceNote" [placeholder]="'Band, tempo, assistance' | translate" /></label>
             @if (workoutExercise.sets.length > 1) {
               <button type="button" class="btn btn-danger" (click)="removeSet(workoutExercise, setIndex)">
                 {{ 'Delete' | translate }}
@@ -158,10 +158,10 @@
         <tbody>
           @for (session of sessions; track session.id) {
             <tr>
-              <td><strong>{{ session.title }}</strong></td>
-              <td>{{ session.sessionDate | date:'mediumDate' }}</td>
-              <td>{{ session.durationMinutes || 0 }} {{ 'min' | translate }}</td>
-              <td>{{ session.totalVolume || 0 | number:'1.0-0' }} kg</td>
+              <td [attr.data-label]="'Title' | translate"><strong>{{ session.title }}</strong></td>
+              <td [attr.data-label]="'Date' | translate">{{ session.sessionDate | date:'mediumDate' }}</td>
+              <td [attr.data-label]="'Duration' | translate">{{ session.durationMinutes || 0 }} {{ 'min' | translate }}</td>
+              <td [attr.data-label]="'Volume' | translate">{{ session.totalVolume || 0 | number:'1.0-0' }} kg</td>
               <td><div class="table-actions">
                 <button type="button" class="btn btn-ghost" (click)="viewDetails(session)">{{ 'View' | translate }}</button>
                 <button type="button" class="btn btn-danger" (click)="delete(session)">{{ 'Delete' | translate }}</button>
