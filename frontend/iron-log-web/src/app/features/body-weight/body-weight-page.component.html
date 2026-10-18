@@ -1,0 +1,42 @@
+<section class="page-header">
+  <div>
+    <h1>{{ 'Body weight' | translate }}</h1>
+    <p>{{ 'Track your body weight over time.' | translate }}</p>
+  </div>
+  <button type="button" class="btn btn-primary" (click)="openDialog()">{{ 'Record body weight' | translate }}</button>
+</section>
+
+<section class="weight-chart" [attr.aria-label]="'Body weight history' | translate" [attr.aria-busy]="loading">
+  <div class="chart-heading"><h2>{{ 'Body weight history' | translate }}</h2><span>kg</span></div>
+  @if (error) {
+    <div class="empty-state" role="alert"><p>{{ error | translate }}</p><button class="btn btn-ghost" type="button" (click)="load()">{{ 'Retry' | translate }}</button></div>
+  } @else if (loading) {
+    <div class="empty-state" role="status">{{ 'Loading body weight...' | translate }}</div>
+  } @else if (!entries.length) {
+    <div class="empty-state">{{ 'Record your first body weight to see your progress.' | translate }}</div>
+  }
+  <div class="chart-canvas" [hidden]="loading || !!error || !entries.length">
+    <canvas #weightCanvas role="img" [attr.aria-label]="'Body weight history in kilograms' | translate"></canvas>
+  </div>
+</section>
+
+<dialog #weightDialog class="weight-dialog" aria-labelledby="weight-dialog-title" (cancel)="onCancel($event)">
+  <form (ngSubmit)="save()">
+    <h2 id="weight-dialog-title">{{ 'Record body weight' | translate }}</h2>
+    <fieldset [disabled]="saving">
+      <label class="form-field">
+        <span>{{ 'Date' | translate }}</span>
+        <input type="date" name="recordedOn" [(ngModel)]="recordedOn" required autofocus />
+      </label>
+      <label class="form-field">
+        <span>{{ 'Weight in kg' | translate }}</span>
+        <input type="text" inputmode="decimal" name="weight" [(ngModel)]="weight" placeholder="75.5" maxlength="12" required />
+      </label>
+    </fieldset>
+    @if (formError) { <p class="error-state" role="alert">{{ formError | translate }}</p> }
+    <div class="form-actions">
+      <button type="button" class="btn btn-ghost" [disabled]="saving" (click)="closeDialog()">{{ 'Cancel' | translate }}</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving">{{ (saving ? 'Saving...' : 'Save') | translate }}</button>
+    </div>
+  </form>
+</dialog>

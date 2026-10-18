@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +61,15 @@ builder.Services.AddCors(options =>
 builder.Services.AddPersistence(builder.Configuration);
 
 var app = builder.Build();
+
+// Apply pending schema changes before accepting requests, using this environment's database.
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var database = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    app.Logger.LogInformation("Applying pending database migrations.");
+    await database.Database.MigrateAsync();
+    app.Logger.LogInformation("Database migrations completed.");
+}
 
 if (app.Environment.IsDevelopment())
 {

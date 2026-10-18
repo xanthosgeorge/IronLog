@@ -28,6 +28,7 @@ export const routes: Routes = [
         loadChildren: () => import('./features/workout-sessions/workout-sessions.routes').then((m) => m.workoutSessionsRoutes)
       },
       { path: 'progress', redirectTo: 'dashboard' },
+      { path: 'body-weight', loadComponent: () => import('./features/body-weight/body-weight-page.component').then(m => m.BodyWeightPageComponent) },
       { path: 'analytics', redirectTo: 'dashboard' },
       { path: 'settings', loadComponent: () => import('./features/settings/settings-page.component').then(m => m.SettingsPageComponent) }
     ]

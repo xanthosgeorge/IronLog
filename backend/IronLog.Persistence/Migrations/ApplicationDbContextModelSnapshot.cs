@@ -22,6 +22,32 @@ namespace IronLog.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("IronLog.Domain.Entities.BodyWeightEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("RecordedOn")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("WeightKg")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "RecordedOn");
+
+                    b.ToTable("body_weight_entries", (string)null);
+                });
+
             modelBuilder.Entity("IronLog.Domain.Entities.Exercise", b =>
                 {
                     b.Property<Guid>("Id")
@@ -232,6 +258,17 @@ namespace IronLog.Persistence.Migrations
                     b.ToTable("workout_sets", (string)null);
                 });
 
+            modelBuilder.Entity("IronLog.Domain.Entities.BodyWeightEntry", b =>
+                {
+                    b.HasOne("IronLog.Domain.Entities.User", "User")
+                        .WithMany("BodyWeightEntries")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("IronLog.Domain.Entities.Exercise", b =>
                 {
                     b.HasOne("IronLog.Domain.Entities.MuscleGroup", "MuscleGroup")
@@ -315,6 +352,8 @@ namespace IronLog.Persistence.Migrations
 
             modelBuilder.Entity("IronLog.Domain.Entities.User", b =>
                 {
+                    b.Navigation("BodyWeightEntries");
+
                     b.Navigation("Exercises");
 
                     b.Navigation("MuscleGroups");

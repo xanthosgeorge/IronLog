@@ -6,6 +6,7 @@ namespace IronLog.Persistence;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
     public DbSet<User> Users => Set<User>();
+    public DbSet<BodyWeightEntry> BodyWeightEntries => Set<BodyWeightEntry>();
 
     public DbSet<WorkoutSession> WorkoutSessions => Set<WorkoutSession>();
 
@@ -22,6 +23,15 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         base.OnModelCreating(modelBuilder);
 
         ConfigureUser(modelBuilder);
+        modelBuilder.Entity<BodyWeightEntry>(entity =>
+        {
+            entity.ToTable("body_weight_entries");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.WeightKg).HasPrecision(6, 2);
+            entity.HasIndex(x => new { x.UserId, x.RecordedOn });
+            entity.HasOne(x => x.User).WithMany(x => x.BodyWeightEntries)
+                .HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
         ConfigureWorkoutSession(modelBuilder);
         ConfigureWorkoutExercise(modelBuilder);
         ConfigureWorkoutSet(modelBuilder);

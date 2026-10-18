@@ -20,4 +20,5 @@ public class User
     public ICollection<MuscleGroup> MuscleGroups { get; set; } = new List<MuscleGroup>();
 
     public ICollection<Exercise> Exercises { get; set; } = new List<Exercise>();
+    public ICollection<BodyWeightEntry> BodyWeightEntries { get; set; } = new List<BodyWeightEntry>();
 }
