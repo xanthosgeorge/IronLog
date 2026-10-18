@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IronLog.Api.Controllers;
 
+public record WorkoutSessionPageDto(List<WorkoutSessionDto> Items, int Total, bool HasMore);
+
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
@@ -42,6 +44,25 @@ public class WorkoutSessionsController : ControllerBase
             .ToListAsync();
 
         return Ok(sessions);
+    }
+
+    [HttpGet("recent")]
+    public async Task<IActionResult> GetRecent([FromQuery] int skip = 0)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        if (skip < 0) return BadRequest("Skip cannot be negative.");
+        var query = _context.WorkoutSessions.AsNoTracking().Where(x => x.UserId == userId);
+        var total = await query.CountAsync();
+        var items = await query.OrderByDescending(x => x.SessionDate)
+            .ThenByDescending(x => x.CreatedAt).ThenBy(x => x.Id)
+            .Skip(skip).Take(10)
+            .Select(x => new WorkoutSessionDto
+            {
+                Id = x.Id, Title = x.Title, SessionDate = x.SessionDate,
+                BodyWeight = x.BodyWeight, DurationMinutes = x.DurationMinutes,
+                Notes = x.Notes, TotalVolume = x.TotalLoad
+            }).ToListAsync();
+        return Ok(new WorkoutSessionPageDto(items, total, skip + items.Count < total));
     }
 
     [HttpGet("{id:guid}")]

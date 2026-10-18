@@ -135,7 +135,7 @@
   <div class="section-title table-title">
     <div>
       <h2>{{ 'Workout Sessions' | translate }}</h2>
-      <p>{{ sessions.length }} {{ 'logged sessions' | translate }}</p>
+      <p>{{ totalSessions }} {{ 'logged sessions' | translate }} · {{ 'Newest first' | translate }}</p>
     </div>
     <button type="button" class="btn btn-ghost" (click)="loadPageData()">{{ 'Refresh' | translate }}</button>
   </div>
@@ -171,6 +171,13 @@
         </tbody>
       </table>
     </div>
+    @if (hasMore) {
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" (click)="loadMore()" [disabled]="isLoadingMore">
+          {{ (isLoadingMore ? 'Loading sessions...' : 'Load more') | translate }}
+        </button>
+      </div>
+    }
   }
 </section>
 

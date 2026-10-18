@@ -61,6 +61,42 @@
       <button type="button" class="btn btn-ghost" (click)="loadPageData()">{{ 'Refresh' | translate }}</button>
     </div>
 
+    <div class="exercise-filters" role="search" [attr.aria-label]="'Filter exercises' | translate">
+      <label class="form-field name-filter">
+        <span>{{ 'Search by name' | translate }}</span>
+        <div class="search-input">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" />
+          </svg>
+          <input type="search" name="searchName" [(ngModel)]="searchName" [placeholder]="'Search by name' | translate" />
+        </div>
+      </label>
+      <label class="form-field">
+        <span>{{ 'Equipment' | translate }}</span>
+        <select name="equipmentFilter" [(ngModel)]="equipmentFilter">
+          <option [ngValue]="null">{{ 'All equipment' | translate }}</option>
+          @for (equipment of equipmentOptions; track equipment) {
+            <option [ngValue]="equipment">{{ equipment || ('Not set' | translate) }}</option>
+          }
+        </select>
+      </label>
+      <label class="form-field">
+        <span>{{ 'Muscle Group' | translate }}</span>
+        <select name="muscleGroupFilter" [(ngModel)]="muscleGroupFilter">
+          <option value="">{{ 'All muscle groups' | translate }}</option>
+          @for (group of muscleGroups; track group.id) {
+            <option [value]="group.id">{{ group.name }}</option>
+          }
+        </select>
+      </label>
+      @if (hasFilters) {
+        <button type="button" class="btn btn-ghost clear-filters" (click)="clearFilters()">{{ 'Clear filters' | translate }}</button>
+      }
+    </div>
+    @if (!isLoading && hasFilters) {
+      <p class="filter-count" role="status">{{ filteredExercises.length }} / {{ exercises.length }} {{ 'movements configured' | translate }}</p>
+    }
+
     @if (errorMessage && !exerciseDialog.open) {
       <p class="error-state compact" role="alert">{{ errorMessage | translate }}</p>
     }
@@ -72,7 +108,11 @@
       <div class="empty-state">{{ 'No exercises yet.' | translate }}</div>
     }
 
-    @if (!isLoading && exercises.length > 0) {
+    @if (!isLoading && exercises.length > 0 && filteredExercises.length === 0) {
+      <div class="empty-state">{{ 'No exercises match your filters.' | translate }}</div>
+    }
+
+    @if (!isLoading && filteredExercises.length > 0) {
       <div class="table-scroll">
       <table class="data-table">
         <thead>
@@ -85,7 +125,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (exercise of exercises; track exercise) {
+          @for (exercise of filteredExercises; track exercise.id) {
             <tr>
               <td><strong>{{ exercise.name }}</strong></td>
               <td>{{ getMuscleGroupName(exercise) }}</td>

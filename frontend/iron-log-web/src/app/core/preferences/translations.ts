@@ -1,4 +1,12 @@
 export const greek: Record<string, string> = {
+  'Filter exercises': 'Φίλτρα ασκήσεων',
+  'Search by name': 'Αναζήτηση με όνομα',
+  'All equipment': 'Όλος ο εξοπλισμός',
+  'All muscle groups': 'Όλες οι μυϊκές ομάδες',
+  'Clear filters': 'Καθαρισμός φίλτρων',
+  'No exercises match your filters.': 'Δεν βρέθηκαν ασκήσεις με αυτά τα φίλτρα.',
+  'Load more': 'Περισσότερα',
+  'Newest first': 'Πιο πρόσφατες πρώτα',
   'Body weight': 'Σωματικό βάρος',
   'Record body weight': 'Καταχώριση σωματικού βάρους',
   'Track your body weight over time.': 'Παρακολούθησε την εξέλιξη του σωματικού σου βάρους.',

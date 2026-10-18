@@ -17,9 +17,9 @@ describe('WorkoutSessionsPageComponent', () => {
   };
 
   beforeEach(async () => {
-    service = jasmine.createSpyObj('WorkoutSessionService', ['getAll', 'getById', 'create']);
+    service = jasmine.createSpyObj('WorkoutSessionService', ['getRecent', 'getById', 'create']);
     response = new Subject();
-    service.getAll.and.returnValue(of([session]));
+    service.getRecent.and.returnValue(of({ items: [session], total: 1, hasMore: false }));
     service.getById.and.returnValue(of(session));
     service.create.and.returnValue(response);
     await TestBed.configureTestingModule({
@@ -34,6 +34,34 @@ describe('WorkoutSessionsPageComponent', () => {
     fixture.detectChanges();
   });
   afterEach(() => fixture.destroy());
+
+  it('shows ten sessions and appends the next page until there are no more', () => {
+    const items = Array.from({ length: 10 }, (_, i) => ({ ...session, id: `session-${i}` }));
+    service.getRecent.and.returnValue(of({ items, total: 11, hasMore: true }));
+    component.loadPageData();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('.data-table tbody tr').length).toBe(10);
+    service.getRecent.and.returnValue(of({ items: [{ ...session, id: 'last' }], total: 11, hasMore: false }));
+    component.loadMore();
+    fixture.detectChanges();
+    expect(service.getRecent).toHaveBeenCalledWith(10);
+    expect(component.sessions.length).toBe(11);
+    expect(component.sessions[0].id).toBe('session-0');
+    expect(component.hasMore).toBeFalse();
+  });
+
+  it('prevents repeated requests and preserves rows on a load-more error', () => {
+    component.hasMore = true;
+    const more = new Subject<{ items: WorkoutSession[]; total: number; hasMore: boolean }>();
+    service.getRecent.and.returnValue(more);
+    component.loadMore();
+    component.loadMore();
+    expect(service.getRecent).toHaveBeenCalledTimes(2);
+    more.error(new Error('offline'));
+    expect(component.sessions).toEqual([session]);
+    expect(component.isLoadingMore).toBeFalse();
+    expect(component.hasMore).toBeTrue();
+  });
 
   it('shows workouts in a table and opens the form only on demand', () => {
     expect(fixture.nativeElement.querySelectorAll('.data-table tbody tr').length).toBe(1);
@@ -66,7 +94,7 @@ describe('WorkoutSessionsPageComponent', () => {
     expect(component.dialog.nativeElement.open).toBeTrue();
     response.next({ id: 'new' });
     expect(component.dialog.nativeElement.open).toBeFalse();
-    expect(service.getAll).toHaveBeenCalledTimes(2);
+    expect(service.getRecent).toHaveBeenCalledTimes(2);
     expect(component.successMessage).toBeTruthy();
   });
 

@@ -14,6 +14,10 @@ export class WorkoutSessionService {
     return this.http.get<WorkoutSession[]>(this.url);
   }
 
+  getRecent(skip = 0): Observable<{ items: WorkoutSession[]; total: number; hasMore: boolean }> {
+    return this.http.get<{ items: WorkoutSession[]; total: number; hasMore: boolean }>(`${this.url}/recent`, { params: { skip } });
+  }
+
   getById(id: string): Observable<WorkoutSession> {
     return this.http.get<WorkoutSession>(`${this.url}/${id}`);
   }

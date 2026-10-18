@@ -35,6 +35,45 @@ describe('ExercisesPageComponent', () => {
 
   afterEach(() => fixture.destroy());
 
+  it('combines name, equipment and muscle group filters', () => {
+    component.exercises = [exercise,
+      { ...exercise, id: 'incline', name: 'Incline Bench Press', equipmentType: 'Dumbbell' },
+      { ...exercise, id: 'row', name: 'Bench Row', muscleGroupId: 'back', equipmentType: 'Barbell' }];
+    component.exercises[0] = { ...exercise, equipmentType: 'Barbell' };
+    component.searchName = '  BENCH  ';
+    component.equipmentFilter = 'Barbell';
+    component.muscleGroupFilter = 'chest';
+    expect(component.filteredExercises.map(x => x.id)).toEqual(['bench']);
+    component.clearFilters();
+    expect(component.filteredExercises.length).toBe(3);
+    expect(component.hasFilters).toBeFalse();
+  });
+
+  it('matches names without case or accent differences and offers distinct equipment', () => {
+    component.exercises = [
+      { ...exercise, name: 'Πιέσεις', equipmentType: ' Barbell ' },
+      { ...exercise, id: 'second', equipmentType: 'barbell' },
+      { ...exercise, id: 'unset', equipmentType: '' }];
+    component.searchName = 'ΠΙΕΣ';
+    expect(component.filteredExercises.length).toBe(1);
+    expect(component.equipmentOptions.length).toBe(2);
+    component.searchName = '';
+    component.equipmentFilter = '';
+    expect(component.filteredExercises.map(x => x.id)).toEqual(['unset']);
+  });
+
+  it('shows a useful empty result and restores the table when filters are cleared', () => {
+    const search = fixture.nativeElement.querySelector('input[name="searchName"]') as HTMLInputElement;
+    search.value = 'no matching exercise';
+    search.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.data-table')).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('No exercises match your filters.');
+    (fixture.nativeElement.querySelector('.clear-filters') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('.data-table tbody tr').length).toBe(1);
+  });
+
   it('keeps the form closed until Create Exercise is clicked', () => {
     expect(component.dialog.nativeElement.open).toBeFalse();
     (fixture.nativeElement.querySelector('.page-header button') as HTMLButtonElement).click();

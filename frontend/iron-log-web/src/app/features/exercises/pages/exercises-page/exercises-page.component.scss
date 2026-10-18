@@ -2,6 +2,14 @@
 .table-card { border-top: 1px solid var(--border); padding-top: 24px; }
 .table-scroll { overflow-x: auto; }
 .data-table { min-width: 640px; }
+.exercise-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; margin-bottom: 24px; }
+.exercise-filters .form-field { flex: 1 1 180px; min-width: 0; }
+.exercise-filters .name-filter { flex-grow: 2; }
+.search-input { position: relative; }
+.search-input svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.search-input input { padding-left: 42px; }
+.filter-count { color: var(--muted); margin: -8px 0 20px; }
+.clear-filters { min-height: 44px; }
 .exercise-dialog {
   width: min(480px, calc(100% - 32px));
   max-height: calc(100dvh - 32px);

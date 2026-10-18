@@ -50,6 +50,10 @@ export class WorkoutSessionsPageComponent implements OnInit {
   selectedSession: WorkoutSession | null = null;
   form: WorkoutSessionForm = this.createEmptyForm();
   isLoading = false;
+  isLoadingMore = false;
+  hasMore = false;
+  totalSessions = 0;
+  private listVersion = 0;
   isSaving = false;
   errorMessage = '';
   successMessage = '';
@@ -64,7 +68,9 @@ export class WorkoutSessionsPageComponent implements OnInit {
   }
 
   loadPageData(): void {
+    const version = ++this.listVersion;
     this.isLoading = true;
+    this.isLoadingMore = false;
     this.errorMessage = '';
 
     this.exerciseService.getAll().subscribe({
@@ -77,14 +83,40 @@ export class WorkoutSessionsPageComponent implements OnInit {
       }
     });
 
-    this.workoutSessionService.getAll().subscribe({
-      next: (items) => {
-        this.sessions = items;
+    this.workoutSessionService.getRecent().subscribe({
+      next: (page) => {
+        if (version !== this.listVersion) return;
+        this.sessions = page.items;
+        this.totalSessions = page.total;
+        this.hasMore = page.hasMore;
         this.isLoading = false;
       },
       error: () => {
+        if (version !== this.listVersion) return;
         this.errorMessage = 'Could not load workout sessions from the API.';
         this.isLoading = false;
+      }
+    });
+  }
+
+  loadMore(): void {
+    if (this.isLoading || this.isLoadingMore || !this.hasMore) return;
+    const version = this.listVersion;
+    this.isLoadingMore = true;
+    this.errorMessage = '';
+    this.workoutSessionService.getRecent(this.sessions.length).subscribe({
+      next: page => {
+        if (version !== this.listVersion) return;
+        const known = new Set(this.sessions.map(x => x.id));
+        this.sessions = [...this.sessions, ...page.items.filter(x => !known.has(x.id))];
+        this.totalSessions = page.total;
+        this.hasMore = page.hasMore;
+        this.isLoadingMore = false;
+      },
+      error: () => {
+        if (version !== this.listVersion) return;
+        this.errorMessage = 'Could not load workout sessions from the API.';
+        this.isLoadingMore = false;
       }
     });
   }

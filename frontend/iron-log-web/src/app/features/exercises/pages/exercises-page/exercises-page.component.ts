@@ -25,6 +25,41 @@ export class ExercisesPageComponent implements OnInit {
   isLoading = false;
   isSaving = false;
   errorMessage = '';
+  searchName = '';
+  equipmentFilter: string | null = null;
+  muscleGroupFilter = '';
+
+  get equipmentOptions(): string[] {
+    const values = new Map<string, string>();
+    for (const exercise of this.exercises) {
+      const value = exercise.equipmentType?.trim() ?? '';
+      if (!values.has(this.normalize(value))) values.set(this.normalize(value), value);
+    }
+    return [...values.values()].sort((a, b) => a.localeCompare(b, this.preferences.locale()));
+  }
+
+  get filteredExercises(): Exercise[] {
+    const name = this.normalize(this.searchName);
+    return this.exercises.filter(exercise =>
+      (!name || this.normalize(exercise.name).includes(name)) &&
+      (this.equipmentFilter === null || this.normalize(exercise.equipmentType ?? '') === this.normalize(this.equipmentFilter)) &&
+      (!this.muscleGroupFilter || exercise.muscleGroupId === this.muscleGroupFilter));
+  }
+
+  get hasFilters(): boolean {
+    return !!this.searchName || this.equipmentFilter !== null || !!this.muscleGroupFilter;
+  }
+
+  clearFilters(): void {
+    this.searchName = '';
+    this.equipmentFilter = null;
+    this.muscleGroupFilter = '';
+  }
+
+  private normalize(value: string): string {
+    return value.trim().toLocaleLowerCase(this.preferences.locale()).normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '').replace(/ς/g, 'σ');
+  }
 
   constructor(
     private readonly exerciseService: ExerciseService,
