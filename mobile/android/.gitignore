@@ -12,3 +12,7 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+
+# Android source sets are not .NET build output.
+!app/src/debug/
+!app/src/debug/AndroidManifest.xml

@@ -1,8 +1,14 @@
 # IronLog
 
-IronLog is a web-based post-workout fitness tracker. It lets an athlete organize muscle groups and exercises, then record workout sessions with ordered exercises, sets, load, repetitions, RPE, warm-up status, and notes.
+IronLog is a cross-platform post-workout fitness tracker for web, iOS, and Android. It lets an athlete organize muscle groups and exercises, then record workout sessions with ordered exercises, sets, load, repetitions, RPE, warm-up status, and notes.
 
-The application is a full-stack project with an Angular single-page application, an ASP.NET Core REST API, and PostgreSQL.
+The application combines an Angular web frontend and a Flutter mobile client with a shared ASP.NET Core REST API and PostgreSQL database. Both clients use the same account and training history. The mobile app connects to the Azure API by default.
+
+## Recent additions
+
+- Flutter mobile client for iOS and Android, following the Angular app's visual design.
+- Android test APK, adaptive launcher icon, and dark startup screen.
+- Real mobile screenshots added below, covering exercise progress, the exercise library, and workout history.
 
 ## Features
 
@@ -12,32 +18,51 @@ The application is a full-stack project with an Angular single-page application,
 - Track set weight, repetitions, RPE, warm-up status, resistance notes, and exercise notes.
 - Calculate and store the total training load for each workout session.
 - View workout-session lists and details.
+- Compare exercise progress by maximum working weight, repetitions, or training volume, excluding warm-up sets.
+- Record body weight and view its history.
+- Switch between Greek and English and six accent colors: red, blue, green, orange, fuchsia, and turquoise.
+- Add a device-local profile picture and manage appearance preferences.
 - Protect workout history by preventing deletion of exercises or muscle groups that are still in use.
-- Create an athlete account, sign in, and maintain a JWT-backed browser session.
+- Create an athlete account, sign in, and maintain a JWT-backed session. Mobile tokens use platform secure storage.
+
+## Screenshots
+
+Captured from the Flutter Android app on a Pixel 9 Pro XL emulator, using the orange/gray theme and Greek interface. Tap an image to view it at full resolution.
+
+| Exercise progress | Exercise library | Workout history |
+| --- | --- | --- |
+| [<img src="docs/screenshots/android-progress.png" width="240" alt="Android exercise progress with a workout chart and percentage improvement">](docs/screenshots/android-progress.png) | [<img src="docs/screenshots/android-exercises.png" width="240" alt="Android exercise library with search and muscle-group and equipment filters">](docs/screenshots/android-exercises.png) | [<img src="docs/screenshots/android-workouts.png" width="240" alt="Android workout history with dates, duration and training volume">](docs/screenshots/android-workouts.png) |
+
+The original PNG captures are stored in [docs/screenshots](docs/screenshots/README.md). No account identifiers or credentials are shown in these images.
 
 ## Technology stack
 
 | Area | Technology |
 | --- | --- |
 | Frontend | Angular 21, TypeScript 5.9, SCSS, RxJS |
+| Mobile | Flutter, Dart, Material 3, iOS and Android |
+| Charts | Chart.js on web, fl_chart on mobile |
 | Backend | ASP.NET Core 10, C# |
 | Data access | Entity Framework Core 10 with Npgsql |
 | Database | PostgreSQL 17, Docker Compose |
 | API documentation | OpenAPI and Swagger in Development |
-| Tests | Angular Karma/Jasmine and .NET xUnit |
+| Tests | Angular Karma/Jasmine, .NET xUnit, Flutter unit/widget tests |
 
 ## Architecture
 
 ```text
-Angular frontend (port 4200)
-        |
-        | HTTP / JSON
-        v
-ASP.NET Core API (port 5090)
-        |
-        | Entity Framework Core
-        v
-PostgreSQL (host port 5433)
+Angular web frontend        Flutter mobile client
+(local port 4200)           (iOS / Android)
+        |                         |
+        +------- HTTP / JSON -----+
+                      |
+                      v
+           ASP.NET Core REST API
+        (Azure or local port 5090)
+                      |
+                      | Entity Framework Core
+                      v
+          PostgreSQL (local host port 5433)
 ```
 
 The .NET solution is divided into the following projects:
@@ -53,8 +78,15 @@ tests/
   IronLog.Tests           xUnit persistence tests
 frontend/
   iron-log-web            Angular application
+mobile/
+  lib                     Shared Flutter screens, API client, and preferences
+  android                 Android app, launcher icon, and native configuration
+  ios                     iOS app and signing configuration
+  test                    Flutter unit and widget tests
 database/
   docker-compose.yml      Local PostgreSQL service
+docs/
+  screenshots             Mobile screenshots embedded in this README
 ```
 
 Controllers currently access `ApplicationDbContext` directly. The `Application` project provides DTO contracts, while a dedicated application-service/use-case layer has not yet been introduced.
@@ -82,6 +114,8 @@ Install the following before running the project:
 - [Node.js](https://nodejs.org/) 20.19 or later
 - Docker Desktop with Docker Engine running
 - Entity Framework Core CLI 10 (needed to apply migrations)
+
+For mobile development, install Flutter and the platform toolchain: Xcode on macOS for iOS, or Android SDK/JDK for Android. See [mobile/README.md](mobile/README.md) for setup, API overrides, and device installation.
 
 Install the EF CLI once if it is not already available:
 
@@ -138,6 +172,29 @@ Open <http://localhost:4200>.
 
 The frontend API URL is configured in [frontend/iron-log-web/src/environments/environment.ts](frontend/iron-log-web/src/environments/environment.ts).
 
+### 5. Run the mobile app
+
+```sh
+cd mobile
+flutter pub get
+flutter run
+```
+
+By default, mobile uses the deployed Azure API, so local PostgreSQL and the local API are not required. To use the local API instead, pass an explicit override:
+
+```sh
+# iOS simulator
+flutter run --dart-define=API_BASE_URL=http://localhost:5090
+# Android emulator
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:5090
+```
+
+Build the Android test APK with `flutter build apk --release` from `mobile`.
+The result is `mobile/build/app/outputs/flutter-apk/app-release.apk`.
+This optimized test build uses the local Android development signing key; Google Play distribution still requires production signing setup. APKs and signing keys are not committed to the repository.
+
+Detailed instructions are in [mobile/README.md](mobile/README.md).
+
 ## Mock workout data
 
 After applying migrations and registering a user, run this from the repository root
@@ -168,10 +225,11 @@ For deployment of the frontend and API together on Azure App Service, see
 | Muscle groups | `/api/MuscleGroups` | List, get by ID, create, update, delete |
 | Exercises | `/api/Exercises` | List, get by ID, create, update, delete |
 | Workout sessions | `/api/WorkoutSessions` | List, get details, create, delete |
+| Body weight | `/api/BodyWeights` | List history, get by ID, create |
 
 `GET /api/WorkoutSessions` returns a session summary. `GET /api/WorkoutSessions/{id}` returns the complete nested exercise and set structure.
 
-All workout, exercise, and muscle-group endpoints require a bearer token. Register or sign in through the UI first; the Angular HTTP interceptor attaches the access token to API requests automatically. Workout sessions are scoped to the authenticated athlete, and their user ID is taken from the signed-in token rather than the request body.
+All workout, exercise, muscle-group, and body-weight endpoints require a bearer token. Register or sign in through the UI first; the Angular HTTP interceptor and Flutter API client attach the access token automatically. Workout sessions are scoped to the authenticated athlete, and their user ID is taken from the signed-in token rather than the request body.
 
 ## Authentication
 
@@ -212,6 +270,17 @@ To create an EF Core migration after a domain-model change:
 dotnet ef migrations add <MigrationName> --project backend/IronLog.Persistence/IronLog.Persistence.csproj --startup-project backend/IronLog.Api/IronLog.Api.csproj
 ```
 
+### Mobile
+
+Run from `mobile`:
+
+```sh
+flutter analyze
+flutter test
+flutter build apk --debug
+flutter build apk --release
+```
+
 ## Stop local services
 
 Stop the frontend and API with `Ctrl+C` in their terminal windows. Stop the database container while preserving its data volume with:
@@ -224,7 +293,8 @@ To remove the database volume as well, use `docker compose -f database/docker-co
 
 ## Current limitations and next steps
 
-- Progress, Analytics, and Settings are navigation placeholders that redirect to Dashboard.
+- Android release builds currently use the local development key for direct testing; production signing and store distribution are not configured.
+- Profile pictures, language, and theme preferences are local to the browser/device and do not synchronize through the API.
 - `IronLog.Infrastructure` is a placeholder project.
 - API controllers currently contain persistence/query logic that could move into application services or commands/queries.
 - Test coverage is currently focused on basic persistence and component checks; API integration coverage would be a valuable next addition.
